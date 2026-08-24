@@ -1,0 +1,68 @@
+[
+  {
+    "id": "tile-entrance",
+    "name": "Entrance",
+    "type": "entrance",
+    "north": true,
+    "south": true,
+    "west": true,
+    "east": true,
+    "exit": false,
+    "quantity": 1
+  },
+  {
+    "id": "tile-corridor",
+    "name": "Corridor",
+    "type": "corridor",
+    "north": true,
+    "south": true,
+    "west": false,
+    "east": false,
+    "exit": false,
+    "quantity": 8
+  },
+  {
+    "id": "tile-dead-end",
+    "name": "Dead End",
+    "type": "dead-end",
+    "north": true,
+    "south": false,
+    "west": false,
+    "east": false,
+    "exit": false,
+    "quantity": 6
+  },
+  {
+    "id": "tile-corner",
+    "name": "Corner",
+    "type": "corner",
+    "north": true,
+    "south": false,
+    "west": false,
+    "east": true,
+    "exit": false,
+    "quantity": 8
+  },
+  {
+    "id": "tile-t-junction",
+    "name": "T-Junction",
+    "type": "t-junction",
+    "north": true,
+    "south": false,
+    "west": true,
+    "east": true,
+    "exit": false,
+    "quantity": 6
+  },
+  {
+    "id": "tile-cross",
+    "name": "Crossroads",
+    "type": "cross",
+    "north": true,
+    "south": true,
+    "west": true,
+    "east": true,
+    "exit": false,
+    "quantity": 4
+  }
+]

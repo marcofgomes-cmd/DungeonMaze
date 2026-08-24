@@ -1,0 +1,82 @@
+[
+  {
+    "class": "warrior",
+    "name": "Warrior",
+    "hp": 30,
+    "attack": 8,
+    "defense": 5,
+    "magic": 2,
+    "abilities": [
+      {
+        "name": "shield_block",
+        "description": "Block next attack completely",
+        "cooldown": 3
+      },
+      {
+        "name": "power_strike",
+        "description": "Deal double damage",
+        "cooldown": 4
+      }
+    ]
+  },
+  {
+    "class": "wizard",
+    "name": "Wizard",
+    "hp": 20,
+    "attack": 4,
+    "defense": 3,
+    "magic": 10,
+    "abilities": [
+      {
+        "name": "fireball",
+        "description": "Deal magic damage to all enemies",
+        "cooldown": 2
+      },
+      {
+        "name": "heal",
+        "description": "Restore HP to self or ally",
+        "cooldown": 2
+      }
+    ]
+  },
+  {
+    "class": "rogue",
+    "name": "Rogue",
+    "hp": 25,
+    "attack": 7,
+    "defense": 3,
+    "magic": 3,
+    "abilities": [
+      {
+        "name": "backstab",
+        "description": "Deal critical damage from stealth",
+        "cooldown": 3
+      },
+      {
+        "name": "dodge",
+        "description": "Evade next attack",
+        "cooldown": 2
+      }
+    ]
+  },
+  {
+    "class": "cleric",
+    "name": "Cleric",
+    "hp": 28,
+    "attack": 5,
+    "defense": 4,
+    "magic": 7,
+    "abilities": [
+      {
+        "name": "heal_light",
+        "description": "Restore HP to all allies",
+        "cooldown": 3
+      },
+      {
+        "name": "smite",
+        "description": "Deal holy damage to undead",
+        "cooldown": 2
+      }
+    ]
+  }
+]

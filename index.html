@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dungeon Maze</title>
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+  <div id="app">
+    <header>
+      <h1>Dungeon Maze</h1>
+      <div id="game-info">
+        <span id="turn-display">Turn: 1</span>
+        <span id="player-display">Player: 1</span>
+      </div>
+    </header>
+
+    <div id="row1">
+      <section id="hero-panel">
+        <h2>Heroes</h2>
+        <div id="hero-list"></div>
+      </section>
+
+      <section id="deck-panel">
+        <h2>Decks</h2>
+        <div id="deck-area">
+          <div id="dungeon-deck" class="deck">Dungeon Deck</div>
+          <div id="encounter-deck" class="deck">Encounter Deck</div>
+        </div>
+      </section>
+    </div>
+
+    <div id="row2">
+      <section id="log-panel">
+        <h2>Game Log</h2>
+        <div id="game-log"></div>
+      </section>
+
+      <section id="preview-panel">
+        <h2>Tile Preview</h2>
+        <div id="tile-preview" class="hidden"></div>
+        <div id="preview-controls">
+          <button id="rotate-btn" class="hidden">Rotate 90° CW</button>
+          <button id="confirm-placement-btn" class="hidden">Confirm</button>
+        </div>
+      </section>
+
+      <section id="encounter-panel">
+        <h2>Encounter</h2>
+        <div id="encounter-card"></div>
+        <div id="combat-area">
+          <button id="roll-dice" class="hidden">Roll d20</button>
+          <div id="dice-result" class="hidden"></div>
+          <button id="resolve-btn" class="hidden">Resolve</button>
+        </div>
+      </section>
+    </div>
+
+    <div id="row3">
+      <section id="board">
+        <h2>Dungeon</h2>
+        <div id="dungeon-grid"></div>
+      </section>
+    </div>
+  </div>
+
+  <script src="js/game.js"></script>
+</body>
+</html>

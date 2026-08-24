@@ -1,0 +1,294 @@
+[
+  {
+    "id": "monster-001",
+    "name": "Goblin",
+    "type": "monster",
+    "hp": 5,
+    "attack": 3,
+    "defense": 1,
+    "treasure": 10,
+    "xp": 5,
+    "description": "A small, cunning creature with sharp teeth.",
+    "quantity": 4
+  },
+  {
+    "id": "monster-002",
+    "name": "Skeleton Warrior",
+    "type": "monster",
+    "hp": 8,
+    "attack": 4,
+    "defense": 2,
+    "treasure": 15,
+    "xp": 8,
+    "description": "Ancient bones animated by dark magic.",
+    "quantity": 3
+  },
+  {
+    "id": "monster-003",
+    "name": "Orc Brute",
+    "type": "monster",
+    "hp": 12,
+    "attack": 6,
+    "defense": 3,
+    "treasure": 25,
+    "xp": 12,
+    "description": "A hulking figure with a massive axe.",
+    "quantity": 2
+  },
+  {
+    "id": "monster-004",
+    "name": "Shadow Wraith",
+    "type": "monster",
+    "hp": 6,
+    "attack": 5,
+    "defense": 1,
+    "treasure": 20,
+    "xp": 10,
+    "description": "A formless darkness that drains life.",
+    "quantity": 2
+  },
+  {
+    "id": "monster-005",
+    "name": "Troll",
+    "type": "monster",
+    "hp": 15,
+    "attack": 7,
+    "defense": 4,
+    "treasure": 35,
+    "xp": 15,
+    "description": "A massive creature with regenerative flesh.",
+    "quantity": 2
+  },
+  {
+    "id": "monster-006",
+    "name": "Dragon Whelp",
+    "type": "monster",
+    "hp": 20,
+    "attack": 10,
+    "defense": 6,
+    "treasure": 50,
+    "xp": 25,
+    "description": "A young dragon with scales like armor.",
+    "quantity": 1
+  },
+  {
+    "id": "monster-007",
+    "name": "Giant Rat",
+    "type": "monster",
+    "hp": 3,
+    "attack": 2,
+    "defense": 0,
+    "treasure": 5,
+    "xp": 2,
+    "description": "An oversized rodent with beady eyes.",
+    "quantity": 4
+  },
+  {
+    "id": "monster-008",
+    "name": "Zombie",
+    "type": "monster",
+    "hp": 7,
+    "attack": 3,
+    "defense": 1,
+    "treasure": 8,
+    "xp": 4,
+    "description": "A shambling corpse with empty eyes.",
+    "quantity": 3
+  },
+  {
+    "id": "monster-009",
+    "name": "Dark Mage",
+    "type": "monster",
+    "hp": 10,
+    "attack": 8,
+    "defense": 2,
+    "treasure": 30,
+    "xp": 15,
+    "description": "A hooded figure crackling with dark energy.",
+    "quantity": 2
+  },
+  {
+    "id": "monster-010",
+    "name": "Giant Spider",
+    "type": "monster",
+    "hp": 9,
+    "attack": 5,
+    "defense": 2,
+    "treasure": 15,
+    "xp": 8,
+    "description": "A massive arachnid dripping with venom.",
+    "quantity": 3
+  },
+  {
+    "id": "monster-011",
+    "name": "Werewolf",
+    "type": "monster",
+    "hp": 14,
+    "attack": 8,
+    "defense": 3,
+    "treasure": 40,
+    "xp": 18,
+    "description": "A half-man half-beast with razor claws.",
+    "quantity": 1
+  },
+  {
+    "id": "monster-012",
+    "name": "Stone Golem",
+    "type": "monster",
+    "hp": 25,
+    "attack": 9,
+    "defense": 8,
+    "treasure": 60,
+    "xp": 30,
+    "description": "An animated statue of solid rock.",
+    "quantity": 1
+  },
+  {
+    "id": "treasure-001",
+    "name": "Health Potion",
+    "type": "treasure",
+    "effect": "heal",
+    "value": 10,
+    "description": "A red liquid that restores vitality.",
+    "quantity": 4
+  },
+  {
+    "id": "treasure-002",
+    "name": "Gold Coins",
+    "type": "treasure",
+    "effect": "gold",
+    "value": 25,
+    "description": "A pouch filled with shimmering coins.",
+    "quantity": 4
+  },
+  {
+    "id": "treasure-003",
+    "name": "Magic Scroll",
+    "type": "treasure",
+    "effect": "xp",
+    "value": 15,
+    "description": "Ancient knowledge grants experience.",
+    "quantity": 2
+  },
+  {
+    "id": "treasure-004",
+    "name": "Iron Shield",
+    "type": "treasure",
+    "effect": "equipment",
+    "slot": "armor",
+    "value": 2,
+    "description": "A sturdy shield that blocks attacks.",
+    "quantity": 2
+  },
+  {
+    "id": "treasure-005",
+    "name": "Fire Gem",
+    "type": "treasure",
+    "effect": "buff",
+    "stat": "attack",
+    "value": 3,
+    "description": "A gem that empowers strikes with flame.",
+    "quantity": 2
+  },
+  {
+    "id": "treasure-006",
+    "name": "Large Health Potion",
+    "type": "treasure",
+    "effect": "heal",
+    "value": 20,
+    "description": "A large flask of bright red liquid.",
+    "quantity": 2
+  },
+  {
+    "id": "treasure-007",
+    "name": "Silver Chalice",
+    "type": "treasure",
+    "effect": "gold",
+    "value": 50,
+    "description": "An ornate cup made of pure silver.",
+    "quantity": 1
+  },
+  {
+    "id": "treasure-008",
+    "name": "Enchanted Blade",
+    "type": "treasure",
+    "effect": "buff",
+    "stat": "attack",
+    "value": 4,
+    "description": "A sword that glows with inner light.",
+    "quantity": 1
+  },
+  {
+    "id": "treasure-009",
+    "name": "Mystic Tome",
+    "type": "treasure",
+    "effect": "xp",
+    "value": 25,
+    "description": "A book filled with arcane secrets.",
+    "quantity": 1
+  },
+  {
+    "id": "treasure-010",
+    "name": "Ring of Protection",
+    "type": "treasure",
+    "effect": "buff",
+    "stat": "defense",
+    "value": 3,
+    "description": "A ring that shields the wearer from harm.",
+    "quantity": 1
+  },
+  {
+    "id": "event-001",
+    "name": "Trapped Chest",
+    "type": "event",
+    "effect": "trap",
+    "damage": 8,
+    "description": "A chest that snaps shut when opened.",
+    "quantity": 2
+  },
+  {
+    "id": "event-002",
+    "name": "Friendly Spirit",
+    "type": "event",
+    "effect": "heal",
+    "value": 15,
+    "description": "A ghostly figure offers aid.",
+    "quantity": 2
+  },
+  {
+    "id": "event-003",
+    "name": "Poison Dart Trap",
+    "type": "event",
+    "effect": "trap",
+    "damage": 5,
+    "description": "Darts shoot from the walls!",
+    "quantity": 2
+  },
+  {
+    "id": "event-004",
+    "name": "Hidden Stash",
+    "type": "event",
+    "effect": "gold",
+    "value": 30,
+    "description": "You find a hidden cache of valuables.",
+    "quantity": 2
+  },
+  {
+    "id": "event-005",
+    "name": "Wandering Merchant",
+    "type": "event",
+    "effect": "heal",
+    "value": 10,
+    "description": "A merchant shares supplies.",
+    "quantity": 2
+  },
+  {
+    "id": "event-006",
+    "name": "Collapsing Ceiling",
+    "type": "event",
+    "effect": "trap",
+    "damage": 10,
+    "description": "Rocks fall from above!",
+    "quantity": 1
+  }
+]
