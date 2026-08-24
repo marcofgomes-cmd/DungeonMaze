@@ -457,13 +457,9 @@ function renderPreview() {
   }
 
   preview.classList.remove('hidden');
+  rotateBtn.classList.remove('hidden');
 
   const rotated = rotateExits(state.currentTile, state.currentRotation);
-  const { row, col, fromDir } = state.moveTarget || {};
-  const canPlace = state.moveTarget ? canPlaceInDir(state.currentTile, state.currentRotation, row, col, fromDir) : false;
-
-  rotateBtn.classList.remove('hidden');
-  rotateBtn.disabled = !canPlace;
 
   let html = '<div class="preview-tile">';
   html += '<div class="tile-exits">';
@@ -685,20 +681,8 @@ function onRollDice() {
 function onRotateTile() {
   if (state.phase !== 'place-tile' || !state.currentTile || !state.moveTarget) return;
 
-  const { row, col, fromDir } = state.moveTarget;
-  const startRotation = state.currentRotation;
-
-  for (let i = 1; i <= 3; i++) {
-    state.currentRotation = (state.currentRotation + 90) % 360;
-    if (canPlaceInDir(state.currentTile, state.currentRotation, row, col, fromDir)) {
-      log(`Rotated to ${getRotationLabel(state.currentRotation)}`, 'hero');
-      render();
-      return;
-    }
-  }
-
-  state.currentRotation = startRotation;
-  log('No other valid rotations available.', 'monster');
+  state.currentRotation = (state.currentRotation + 90) % 360;
+  log(`Rotated to ${getRotationLabel(state.currentRotation)}`, 'hero');
   render();
 }
 

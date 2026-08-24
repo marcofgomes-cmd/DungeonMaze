@@ -176,11 +176,6 @@ section h2 {
   margin-top: 0.5rem;
 }
 
-#rotate-btn:disabled {
-  background: #555;
-  cursor: not-allowed;
-}
-
 .preview-tile {
   width: 100px;
   height: 100px;
