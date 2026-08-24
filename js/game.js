@@ -45,7 +45,8 @@ const state = {
   currentEncounter: null,
   lastDiceRoll: null,
   phase: 'move',
-  moveTarget: null
+  moveTarget: null,
+  exploreDir: null
 };
 
 // --- UTILITY ---
@@ -134,6 +135,42 @@ function getAdjacentEmptyTiles(row, col) {
   return emptyTiles;
 }
 
+function canPlaceInDir(tile, rotation, targetRow, targetCol, fromDir) {
+  const rotatedTile = rotateExits(tile, rotation);
+  const requiredDir = getOppositeDir(fromDir);
+
+  if (!rotatedTile[requiredDir]) return false;
+
+  const dirs = ['north', 'south', 'west', 'east'];
+  for (const checkDir of dirs) {
+    if (checkDir === requiredDir) continue;
+
+    const checkDelta = getDirDelta(checkDir);
+    const checkRow = targetRow + checkDelta.row;
+    const checkCol = targetCol + checkDelta.col;
+    const checkKey = posKey(checkRow, checkCol);
+
+    if (state.dungeon.has(checkKey)) {
+      const neighbor = state.dungeon.get(checkKey);
+      const neighborDir = getOppositeDir(checkDir);
+      if (rotatedTile[checkDir] !== neighbor[neighborDir]) {
+        return false;
+      }
+    }
+  }
+
+  return true;
+}
+
+function findValidRotation(tile, targetRow, targetCol, fromDir) {
+  for (let r = 0; r < 360; r += 90) {
+    if (canPlaceInDir(tile, r, targetRow, targetCol, fromDir)) {
+      return r;
+    }
+  }
+  return null;
+}
+
 function log(message, type = 'hero') {
   const logContainer = document.getElementById('game-log');
   const entry = document.createElement('div');
@@ -194,55 +231,6 @@ function initializeGame(rooms, encounters, heroList) {
     explored: true, encounter: null
   };
   state.dungeon.set(posKey(0, 0), entrance);
-}
-
-function getValidPlacements(tile, rotation) {
-  const placements = [];
-  const dirs = ['north', 'south', 'west', 'east'];
-  const rotatedTile = rotateExits(tile, rotation);
-
-  for (const [key, existing] of state.dungeon) {
-    const pos = parseKey(key);
-
-    for (const dir of dirs) {
-      if (!existing[dir]) continue;
-
-      const delta = getDirDelta(dir);
-      const newRow = pos.row + delta.row;
-      const newCol = pos.col + delta.col;
-      const newKey = posKey(newRow, newCol);
-
-      if (state.dungeon.has(newKey)) continue;
-
-      const oppositeDir = getOppositeDir(dir);
-      if (!rotatedTile[oppositeDir]) continue;
-
-      let valid = true;
-      for (const checkDir of dirs) {
-        if (checkDir === oppositeDir) continue;
-
-        const checkDelta = getDirDelta(checkDir);
-        const checkRow = newRow + checkDelta.row;
-        const checkCol = newCol + checkDelta.col;
-        const checkKey = posKey(checkRow, checkCol);
-
-        if (state.dungeon.has(checkKey)) {
-          const neighbor = state.dungeon.get(checkKey);
-          const neighborDir = getOppositeDir(checkDir);
-          if (rotatedTile[checkDir] !== neighbor[neighborDir]) {
-            valid = false;
-            break;
-          }
-        }
-      }
-
-      if (valid) {
-        placements.push({ row: newRow, col: newCol, fromDir: dir });
-      }
-    }
-  }
-
-  return placements;
 }
 
 function placeTile(tile, row, col, rotation) {
@@ -323,6 +311,7 @@ function nextTurn() {
   state.currentTile = null;
   state.currentRotation = 0;
   state.moveTarget = null;
+  state.exploreDir = null;
   state.phase = 'move';
   state.currentPlayer = (state.currentPlayer + 1) % state.players.length;
   if (state.currentPlayer === 0) state.turn++;
@@ -434,7 +423,7 @@ function renderMovementOptions() {
     div.innerHTML = '<div class="movement-marker">?</div>';
     div.addEventListener('click', (e) => {
       e.stopPropagation();
-      onExploreTile(t.row, t.col);
+      onExploreTile(t.row, t.col, t.fromDir);
     });
     grid.appendChild(div);
   }
@@ -468,6 +457,7 @@ function renderPreview() {
   html += `<div class="tile-center">${state.currentTile.name}</div>`;
   html += '</div>';
 
+  const dirLabel = state.exploreDir ? ` towards ${state.exploreDir}` : '';
   html += `<div class="preview-info">Rotation: ${getRotationLabel(state.currentRotation)}</div>`;
   preview.innerHTML = html;
 }
@@ -475,28 +465,28 @@ function renderPreview() {
 function renderPlacementOptions() {
   document.querySelectorAll('.placement-option').forEach(el => el.remove());
 
-  if (!state.currentTile || state.phase !== 'place-tile') return;
+  if (!state.currentTile || state.phase !== 'place-tile' || !state.moveTarget) return;
 
-  const placements = getValidPlacements(state.currentTile, state.currentRotation);
-  const grid = document.getElementById('dungeon-grid');
-  const keys = Array.from(state.dungeon.keys()).map(parseKey);
+  const { row, col, fromDir } = state.moveTarget;
+  if (canPlaceInDir(state.currentTile, state.currentRotation, row, col, fromDir)) {
+    const grid = document.getElementById('dungeon-grid');
+    const keys = Array.from(state.dungeon.keys()).map(parseKey);
 
-  if (keys.length === 0) return;
-  const minRow = Math.min(...keys.map(k => k.row));
-  const minCol = Math.min(...keys.map(k => k.col));
+    if (keys.length === 0) return;
+    const minRow = Math.min(...keys.map(k => k.row));
+    const minCol = Math.min(...keys.map(k => k.col));
 
-  for (const p of placements) {
     const div = document.createElement('div');
     div.className = 'placement-option';
     div.style.position = 'absolute';
-    div.style.left = `${(p.col - minCol) * 104}px`;
-    div.style.top = `${(p.row - minRow) * 104}px`;
+    div.style.left = `${(col - minCol) * 104}px`;
+    div.style.top = `${(row - minRow) * 104}px`;
     div.style.width = '100px';
     div.style.height = '100px';
     div.innerHTML = '<div class="placement-marker">+</div>';
     div.addEventListener('click', (e) => {
       e.stopPropagation();
-      onPlacementSelect(p.row, p.col);
+      onPlacementSelect(row, col);
     });
     grid.appendChild(div);
   }
@@ -602,12 +592,13 @@ function onTileClick(row, col) {
   render();
 }
 
-function onExploreTile(row, col) {
+function onExploreTile(row, col, fromDir) {
   if (state.phase !== 'move') return;
 
-  state.moveTarget = { row, col };
+  state.moveTarget = { row, col, fromDir };
+  state.exploreDir = fromDir;
   state.phase = 'draw-tile';
-  log('Draw a card from the room deck.', 'hero');
+  log(`Draw a room card to place ${fromDir}.`, 'hero');
   render();
 }
 
@@ -618,7 +609,21 @@ function onDrawTile() {
   state.currentTile = tile;
   state.currentRotation = 0;
   log(`Drew: ${tile.name}`, 'hero');
-  state.phase = 'place-tile';
+
+  const { row, col, fromDir } = state.moveTarget;
+  const validRotation = findValidRotation(tile, row, col, fromDir);
+
+  if (validRotation !== null) {
+    state.currentRotation = validRotation;
+    log(`Auto-rotated to ${getRotationLabel(validRotation)}`, 'hero');
+    state.phase = 'place-tile';
+  } else {
+    log(`Cannot place ${tile.name} ${fromDir}. Turn ended.`, 'monster');
+    state.currentTile = null;
+    state.moveTarget = null;
+    state.exploreDir = null;
+    nextTurn();
+  }
   render();
 }
 
@@ -631,12 +636,12 @@ function onRotateTile() {
 
 function onConfirmPlacement() {
   if (state.phase !== 'place-tile') return;
-  const placements = getValidPlacements(state.currentTile, state.currentRotation);
-  if (placements.length === 0) {
-    log('No valid placements! Try rotating or draw a new tile.', 'monster');
+  const { row, col, fromDir } = state.moveTarget;
+  if (!canPlaceInDir(state.currentTile, state.currentRotation, row, col, fromDir)) {
+    log('Cannot place here with this rotation!', 'monster');
     return;
   }
-  log('Click a green spot on the board to place the tile.', 'hero');
+  log('Click the green spot to place the tile.', 'hero');
 }
 
 function onPlacementSelect(row, col) {
