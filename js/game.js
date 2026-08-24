@@ -92,6 +92,11 @@ function getDirDelta(dir) {
   return deltas[dir];
 }
 
+function getRotationLabel(rotation) {
+  const labels = { 0: '0°', 90: '90°', 180: '180°', 270: '270°' };
+  return labels[rotation % 360] || '0°';
+}
+
 function rotateExits(tile, rotation) {
   const exits = { north: tile.north, south: tile.south, west: tile.west, east: tile.east };
   const dirs = ['north', 'east', 'south', 'west'];
@@ -464,7 +469,7 @@ function renderPreview() {
 
   const rotated = rotateExits(state.currentTile, state.currentRotation);
 
-  let html = '<div class="preview-tile">';
+  let html = `<div class="preview-tile" data-rotation="${state.currentRotation}">`;
   html += '<div class="tile-exits">';
   if (rotated.north) html += '<div class="exit north"></div>';
   if (rotated.south) html += '<div class="exit south"></div>';
@@ -472,6 +477,7 @@ function renderPreview() {
   if (rotated.east) html += '<div class="exit east"></div>';
   html += '</div>';
   html += `<div class="tile-center">${state.currentTile.name}</div>`;
+  html += `<div class="preview-info">${getRotationLabel(state.currentRotation)}</div>`;
   html += '</div>';
 
   preview.innerHTML = html;

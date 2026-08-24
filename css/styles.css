@@ -194,7 +194,8 @@ section h2 {
   text-align: center;
   margin-top: 0.5rem;
   font-size: 0.85rem;
-  color: #a0a0a0;
+  color: #e94560;
+  font-weight: bold;
 }
 
 #preview-controls {
