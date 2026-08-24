@@ -25,7 +25,9 @@ try {
     $file = Join-Path $root ($path -replace "/", "\")
     if (Test-Path $file -PathType Leaf) {
       $ext = [System.IO.Path]::GetExtension($file)
-      $context.Response.ContentType = $mimeTypes[$ext] ?? "application/octet-stream"
+      $ct = $mimeTypes[$ext]
+if (-not $ct) { $ct = "application/octet-stream" }
+$context.Response.ContentType = $ct
       $bytes = [System.IO.File]::ReadAllBytes($file)
       $context.Response.ContentLength64 = $bytes.Length
       $context.Response.OutputStream.Write($bytes, 0, $bytes.Length)
