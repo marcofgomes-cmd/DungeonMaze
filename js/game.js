@@ -534,9 +534,15 @@ function renderEncounter() {
 
     if (state.phase === 'resolve-encounter') {
       if (enc.type === 'monster') {
-        rollBtn.classList.remove('hidden');
-        resolveBtn.classList.add('hidden');
-        diceResult.classList.toggle('hidden', state.lastDiceRoll === null);
+        if (state.lastDiceRoll === null) {
+          rollBtn.classList.remove('hidden');
+          resolveBtn.classList.add('hidden');
+          diceResult.classList.add('hidden');
+        } else {
+          rollBtn.classList.add('hidden');
+          resolveBtn.classList.remove('hidden');
+          diceResult.classList.remove('hidden');
+        }
       } else {
         resolveBtn.classList.remove('hidden');
         rollBtn.classList.add('hidden');
@@ -660,12 +666,6 @@ function processDrawEncounter() {
   state.currentEncounter = enc;
   log(`Encounter: ${enc.name}`, enc.type === 'monster' ? 'monster' : 'treasure');
   state.phase = 'resolve-encounter';
-
-  if (enc.type !== 'monster') {
-    const result = resolveEncounter();
-    log(result.message, result.type);
-    nextTurn();
-  }
   render();
 }
 
