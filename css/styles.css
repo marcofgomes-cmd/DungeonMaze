@@ -402,6 +402,57 @@ button:disabled {
   font-weight: bold;
 }
 
+.movement-option {
+  position: absolute;
+  cursor: pointer;
+  z-index: 10;
+  border: 2px dashed #00a8ff;
+  border-radius: 6px;
+  background: rgba(0, 168, 255, 0.3);
+  animation: pulse 1s infinite;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.movement-option:hover {
+  background: rgba(0, 168, 255, 0.5);
+}
+
+.movement-marker {
+  font-size: 2rem;
+  color: #00a8ff;
+  font-weight: bold;
+}
+
+.tile-encounter {
+  position: absolute;
+  top: 4px;
+  left: 4px;
+  font-size: 0.8rem;
+  width: 18px;
+  height: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+}
+
+.tile-encounter.monster {
+  background: #e94560;
+  color: white;
+}
+
+.tile-encounter.treasure {
+  background: #ffd700;
+  color: #1a1a2e;
+}
+
+.tile-encounter.event {
+  background: #00a8ff;
+  color: white;
+}
+
 @keyframes pulse {
   0%, 100% { opacity: 1; }
   50% { opacity: 0.6; }

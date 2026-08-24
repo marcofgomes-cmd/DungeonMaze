@@ -44,7 +44,8 @@ const state = {
   currentRotation: 0,
   currentEncounter: null,
   lastDiceRoll: null,
-  phase: 'draw-tile'
+  phase: 'move',
+  moveTarget: null
 };
 
 // --- UTILITY ---
@@ -114,6 +115,25 @@ function getRotationLabel(rotation) {
   return labels[rotation] || `${rotation}°`;
 }
 
+function getAdjacentEmptyTiles(row, col) {
+  const dirs = ['north', 'south', 'west', 'east'];
+  const tile = state.dungeon.get(posKey(row, col));
+  if (!tile) return [];
+
+  const emptyTiles = [];
+  for (const dir of dirs) {
+    if (!tile[dir]) continue;
+    const delta = getDirDelta(dir);
+    const newRow = row + delta.row;
+    const newCol = col + delta.col;
+    const key = posKey(newRow, newCol);
+    if (!state.dungeon.has(key)) {
+      emptyTiles.push({ row: newRow, col: newCol, fromDir: dir });
+    }
+  }
+  return emptyTiles;
+}
+
 function log(message, type = 'hero') {
   const logContainer = document.getElementById('game-log');
   const entry = document.createElement('div');
@@ -168,7 +188,11 @@ function initializeGame(dungeon, encounters, heroList) {
 
   state.dungeon = new Map();
 
-  const entrance = { id: 'tile-entrance', name: 'Entrance', type: 'entrance', north: true, south: true, west: true, east: true, explored: true };
+  const entrance = {
+    id: 'tile-entrance', name: 'Entrance', type: 'entrance',
+    north: true, south: true, west: true, east: true,
+    explored: true, encounter: null
+  };
   state.dungeon.set(posKey(0, 0), entrance);
 }
 
@@ -230,7 +254,8 @@ function placeTile(tile, row, col, rotation) {
     west: rotated.west,
     east: rotated.east,
     explored: true,
-    rotation: rotation
+    rotation: rotation,
+    encounter: null
   });
 }
 
@@ -263,15 +288,27 @@ function resolveEncounter() {
 
     if (playerPower > monsterPower) {
       player.currentHp = Math.min(player.hp, player.currentHp + 5);
+      const pos = state.players[state.currentPlayer].position;
+      const tile = state.dungeon.get(posKey(pos.row, pos.col));
+      if (tile) tile.encounter = null;
       return { message: `Victory! Defeated ${monster.name}! +5 HP.`, type: 'treasure' };
     } else {
       const damage = Math.max(1, monster.attack - player.defense);
       player.currentHp -= damage;
+      if (player.currentHp <= 0) {
+        player.currentHp = player.hp;
+        player.position = { row: 0, col: 0 };
+        return { message: `Defeated by ${monster.name}! Teleported to entrance.`, type: 'monster' };
+      }
       return { message: `Defeated by ${monster.name}. -${damage} HP.`, type: 'monster' };
     }
   } else {
     const player = state.players[state.currentPlayer];
     const treasure = state.currentEncounter;
+    const pos = player.position;
+    const tile = state.dungeon.get(posKey(pos.row, pos.col));
+    if (tile) tile.encounter = null;
+
     if (treasure.effect === 'heal') {
       player.currentHp = Math.min(player.hp, player.currentHp + treasure.value);
       return { message: `Found ${treasure.name}! +${treasure.value} HP.`, type: 'treasure' };
@@ -285,7 +322,8 @@ function nextTurn() {
   state.lastDiceRoll = null;
   state.currentTile = null;
   state.currentRotation = 0;
-  state.phase = 'draw-tile';
+  state.moveTarget = null;
+  state.phase = 'move';
   state.currentPlayer = (state.currentPlayer + 1) % state.players.length;
   if (state.currentPlayer === 0) state.turn++;
 }
@@ -319,10 +357,9 @@ function renderBoard() {
 
       if (tile) {
         div.classList.add('explored');
-        if (tile.type === 'entrance') {
-          div.classList.add('entrance');
-        }
+        if (tile.type === 'entrance') div.classList.add('entrance');
         div.innerHTML = renderTileContent(tile, r, c);
+        div.addEventListener('click', () => onTileClick(r, c));
       } else {
         div.classList.add('empty');
       }
@@ -335,17 +372,20 @@ function renderBoard() {
     renderPlacementOptions();
   }
 
+  if (state.phase === 'move') {
+    renderMovementOptions();
+  }
+
   const deckEl = document.getElementById('dungeon-deck');
   const encDeckEl = document.getElementById('encounter-deck');
   deckEl.textContent = `Dungeon Deck (${state.dungeonDeck.length})`;
   encDeckEl.textContent = `Encounter Deck (${state.encounterDeck.length})`;
-  deckEl.classList.toggle('disabled', state.phase !== 'draw-tile');
+  deckEl.classList.toggle('disabled', true);
   encDeckEl.classList.toggle('disabled', state.phase !== 'draw-encounter');
 }
 
 function renderTileContent(tile, row, col) {
   const playersHere = state.players.filter(p => p.position.row === row && p.position.col === col);
-  const rotation = tile.rotation || 0;
 
   let html = '<div class="tile-exits">';
   if (tile.north) html += '<div class="exit north"></div>';
@@ -356,6 +396,10 @@ function renderTileContent(tile, row, col) {
 
   html += `<div class="tile-center">${tile.name}</div>`;
 
+  if (tile.encounter) {
+    html += `<div class="tile-encounter ${tile.encounter.type}">${tile.encounter.type === 'monster' ? '⚔' : '★'}</div>`;
+  }
+
   if (playersHere.length > 0) {
     html += '<div class="players">';
     for (const p of playersHere) {
@@ -365,6 +409,35 @@ function renderTileContent(tile, row, col) {
   }
 
   return html;
+}
+
+function renderMovementOptions() {
+  document.querySelectorAll('.movement-option').forEach(el => el.remove());
+
+  const player = state.players[state.currentPlayer];
+  const emptyTiles = getAdjacentEmptyTiles(player.position.row, player.position.col);
+  const grid = document.getElementById('dungeon-grid');
+  const keys = Array.from(state.dungeon.keys()).map(parseKey);
+
+  if (keys.length === 0) return;
+  const minRow = Math.min(...keys.map(k => k.row));
+  const minCol = Math.min(...keys.map(k => k.col));
+
+  for (const t of emptyTiles) {
+    const div = document.createElement('div');
+    div.className = 'movement-option';
+    div.style.position = 'absolute';
+    div.style.left = `${(t.col - minCol) * 104}px`;
+    div.style.top = `${(t.row - minRow) * 104}px`;
+    div.style.width = '100px';
+    div.style.height = '100px';
+    div.innerHTML = '<div class="movement-marker">?</div>';
+    div.addEventListener('click', (e) => {
+      e.stopPropagation();
+      onExploreTile(t.row, t.col);
+    });
+    grid.appendChild(div);
+  }
 }
 
 function renderPreview() {
@@ -385,7 +458,7 @@ function renderPreview() {
 
   const rotated = rotateExits(state.currentTile, state.currentRotation);
 
-  let html = `<div class="preview-tile">`;
+  let html = '<div class="preview-tile">';
   html += '<div class="tile-exits">';
   if (rotated.north) html += '<div class="exit north"></div>';
   if (rotated.south) html += '<div class="exit south"></div>';
@@ -412,18 +485,14 @@ function renderPlacementOptions() {
   const minRow = Math.min(...keys.map(k => k.row));
   const minCol = Math.min(...keys.map(k => k.col));
 
-  const gridRect = grid.getBoundingClientRect();
-  const tileWidth = 104;
-  const tileHeight = 104;
-
   for (const p of placements) {
     const div = document.createElement('div');
     div.className = 'placement-option';
     div.style.position = 'absolute';
-    div.style.left = `${(p.col - minCol) * tileWidth}px`;
-    div.style.top = `${(p.row - minRow) * tileHeight}px`;
-    div.style.width = `${tileWidth - 4}px`;
-    div.style.height = `${tileHeight - 4}px`;
+    div.style.left = `${(p.col - minCol) * 104}px`;
+    div.style.top = `${(p.row - minRow) * 104}px`;
+    div.style.width = '100px';
+    div.style.height = '100px';
     div.innerHTML = '<div class="placement-marker">+</div>';
     div.addEventListener('click', (e) => {
       e.stopPropagation();
@@ -496,6 +565,52 @@ function render() {
 }
 
 // --- EVENT HANDLERS ---
+
+function onTileClick(row, col) {
+  if (state.phase !== 'move') return;
+
+  const player = state.players[state.currentPlayer];
+  const tile = state.dungeon.get(posKey(row, col));
+  if (!tile) return;
+
+  const sameTile = player.position.row === row && player.position.col === col;
+  if (sameTile) return;
+
+  const dirs = ['north', 'south', 'west', 'east'];
+  const currentTile = state.dungeon.get(posKey(player.position.row, player.position.col));
+  let isAdjacent = false;
+  for (const dir of dirs) {
+    if (!currentTile[dir]) continue;
+    const delta = getDirDelta(dir);
+    if (player.position.row + delta.row === row && player.position.col + delta.col === col) {
+      isAdjacent = true;
+      break;
+    }
+  }
+  if (!isAdjacent) return;
+
+  movePlayer(row, col);
+  log(`Moved to ${tile.name}`, 'hero');
+
+  if (tile.encounter) {
+    state.currentEncounter = tile.encounter;
+    log(`Encounter: ${tile.encounter.name}`, tile.encounter.type === 'monster' ? 'monster' : 'treasure');
+    state.phase = 'resolve-encounter';
+  } else {
+    nextTurn();
+  }
+  render();
+}
+
+function onExploreTile(row, col) {
+  if (state.phase !== 'move') return;
+
+  state.moveTarget = { row, col };
+  state.phase = 'draw-tile';
+  log('Draw a tile from the dungeon deck.', 'hero');
+  render();
+}
+
 function onDrawTile() {
   if (state.phase !== 'draw-tile') return;
   const tile = drawTile();
@@ -518,16 +633,36 @@ function onConfirmPlacement() {
   if (state.phase !== 'place-tile') return;
   const placements = getValidPlacements(state.currentTile, state.currentRotation);
   if (placements.length === 0) {
-    log('No valid placements! Draw a new tile.', 'monster');
+    log('No valid placements! Try rotating or draw a new tile.', 'monster');
     return;
   }
   log('Click a green spot on the board to place the tile.', 'hero');
+}
+
+function onPlacementSelect(row, col) {
+  if (state.phase !== 'place-tile' || !state.currentTile) return;
+
+  placeTile(state.currentTile, row, col, state.currentRotation);
+  movePlayer(row, col);
+  log(`Placed ${state.currentTile.name} at (${row}, ${col})`, 'hero');
+
+  state.currentTile = null;
+  state.currentRotation = 0;
+  state.phase = 'draw-encounter';
+
+  render();
 }
 
 function onDrawEncounter() {
   if (state.phase !== 'draw-encounter') return;
   const enc = drawEncounterCard();
   if (!enc) { log('Encounter deck empty!', 'monster'); return; }
+
+  const player = state.players[state.currentPlayer];
+  const pos = player.position;
+  const tile = state.dungeon.get(posKey(pos.row, pos.col));
+  if (tile) tile.encounter = enc;
+
   state.currentEncounter = enc;
   log(`Encounter: ${enc.name}`, enc.type === 'monster' ? 'monster' : 'treasure');
   state.phase = 'resolve-encounter';
@@ -544,20 +679,6 @@ function onResolve() {
   const result = resolveEncounter();
   log(result.message, result.type);
   nextTurn();
-  render();
-}
-
-function onPlacementSelect(row, col) {
-  if (state.phase !== 'place-tile' || !state.currentTile) return;
-
-  placeTile(state.currentTile, row, col, state.currentRotation);
-  movePlayer(row, col);
-  log(`Placed ${state.currentTile.name} at (${row}, ${col})`, 'hero');
-
-  state.currentTile = null;
-  state.currentRotation = 0;
-  state.phase = 'draw-encounter';
-
   render();
 }
 
@@ -580,7 +701,7 @@ async function init() {
     document.getElementById('confirm-placement-btn').addEventListener('click', onConfirmPlacement);
 
     render();
-    log('Game started! Click "Dungeon Deck" to draw a tile.', 'hero');
+    log('Game started! Click a ? tile adjacent to your hero to explore.', 'hero');
   } catch (error) {
     console.error('Failed to initialize:', error);
   }
