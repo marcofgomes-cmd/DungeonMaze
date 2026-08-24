@@ -98,13 +98,16 @@ function rotateExits(tile, rotation) {
   const times = ((rotation % 360) / 90) % 4;
 
   for (let i = 0; i < times; i++) {
-    const newExits = {};
+    const next = {};
     for (const dir of dirs) {
       const idx = dirs.indexOf(dir);
       const prevDir = dirs[(idx + 3) % 4];
-      newExits[dir] = exits[prevDir];
+      next[dir] = exits[prevDir];
     }
-    Object.assign(exits, newExits);
+    exits.north = next.north;
+    exits.south = next.south;
+    exits.west = next.west;
+    exits.east = next.east;
   }
 
   return exits;
@@ -681,9 +684,20 @@ function onRollDice() {
 function onRotateTile() {
   if (state.phase !== 'place-tile' || !state.currentTile || !state.moveTarget) return;
 
-  state.currentRotation = (state.currentRotation + 90) % 360;
-  log(`Rotated to ${getRotationLabel(state.currentRotation)}`, 'hero');
-  render();
+  const { row, col, fromDir } = state.moveTarget;
+  const startRotation = state.currentRotation;
+
+  for (let i = 1; i <= 3; i++) {
+    const next = (startRotation + i * 90) % 360;
+    if (canPlaceInDir(state.currentTile, next, row, col, fromDir)) {
+      state.currentRotation = next;
+      log(`Rotated to ${getRotationLabel(next)}`, 'hero');
+      render();
+      return;
+    }
+  }
+
+  log('No other valid rotations.', 'monster');
 }
 
 function onResolve() {
