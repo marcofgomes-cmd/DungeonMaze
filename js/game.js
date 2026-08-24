@@ -448,15 +448,22 @@ function renderMovementOptions() {
 
 function renderPreview() {
   const preview = document.getElementById('room-preview');
+  const rotateBtn = document.getElementById('rotate-btn');
 
   if (!state.currentTile || state.phase !== 'place-tile') {
     preview.classList.add('hidden');
+    rotateBtn.classList.add('hidden');
     return;
   }
 
   preview.classList.remove('hidden');
 
   const rotated = rotateExits(state.currentTile, state.currentRotation);
+  const { row, col, fromDir } = state.moveTarget || {};
+  const canPlace = state.moveTarget ? canPlaceInDir(state.currentTile, state.currentRotation, row, col, fromDir) : false;
+
+  rotateBtn.classList.remove('hidden');
+  rotateBtn.disabled = !canPlace;
 
   let html = '<div class="preview-tile">';
   html += '<div class="tile-exits">';
@@ -675,6 +682,26 @@ function onRollDice() {
   render();
 }
 
+function onRotateTile() {
+  if (state.phase !== 'place-tile' || !state.currentTile || !state.moveTarget) return;
+
+  const { row, col, fromDir } = state.moveTarget;
+  const startRotation = state.currentRotation;
+
+  for (let i = 1; i <= 3; i++) {
+    state.currentRotation = (state.currentRotation + 90) % 360;
+    if (canPlaceInDir(state.currentTile, state.currentRotation, row, col, fromDir)) {
+      log(`Rotated to ${getRotationLabel(state.currentRotation)}`, 'hero');
+      render();
+      return;
+    }
+  }
+
+  state.currentRotation = startRotation;
+  log('No other valid rotations available.', 'monster');
+  render();
+}
+
 function onResolve() {
   const result = resolveEncounter();
   log(result.message, result.type);
@@ -695,6 +722,7 @@ async function init() {
 
     document.getElementById('roll-dice').addEventListener('click', onRollDice);
     document.getElementById('resolve-btn').addEventListener('click', onResolve);
+    document.getElementById('rotate-btn').addEventListener('click', onRotateTile);
 
     render();
     log('Game started! Click a ? tile adjacent to your hero to explore.', 'hero');
