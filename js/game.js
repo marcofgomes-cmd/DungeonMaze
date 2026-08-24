@@ -45,8 +45,7 @@ const state = {
   currentEncounter: null,
   lastDiceRoll: null,
   phase: 'move',
-  moveTarget: null,
-  exploreDir: null
+  moveTarget: null
 };
 
 // --- UTILITY ---
@@ -109,11 +108,6 @@ function rotateExits(tile, rotation) {
   }
 
   return exits;
-}
-
-function getRotationLabel(rotation) {
-  const labels = { 0: '0°', 90: '90° CW', 180: '180°', 270: '90° CCW' };
-  return labels[rotation] || `${rotation}°`;
 }
 
 function getAdjacentEmptyTiles(row, col) {
@@ -265,10 +259,13 @@ function rollD20() {
 }
 
 function resolveEncounter() {
-  if (!state.currentEncounter) return { message: 'No encounter.', type: 'hero' };
+  if (!state.currentEncounter) return { message: 'No encounter.', type: 'hero', resolved: true };
+
+  const player = state.players[state.currentPlayer];
+  const pos = player.position;
+  const tile = state.dungeon.get(posKey(pos.row, pos.col));
 
   if (state.currentEncounter.type === 'monster') {
-    const player = state.players[state.currentPlayer];
     const monster = state.currentEncounter;
     const roll = state.lastDiceRoll || rollD20();
     const playerPower = player.attack + roll;
@@ -276,33 +273,53 @@ function resolveEncounter() {
 
     if (playerPower > monsterPower) {
       player.currentHp = Math.min(player.hp, player.currentHp + 5);
-      const pos = state.players[state.currentPlayer].position;
-      const tile = state.dungeon.get(posKey(pos.row, pos.col));
       if (tile) tile.encounter = null;
-      return { message: `Victory! Defeated ${monster.name}! +5 HP.`, type: 'treasure' };
+      return { message: `Victory! Defeated ${monster.name}! +5 HP.`, type: 'treasure', resolved: true };
     } else {
       const damage = Math.max(1, monster.attack - player.defense);
       player.currentHp -= damage;
       if (player.currentHp <= 0) {
         player.currentHp = player.hp;
         player.position = { row: 0, col: 0 };
-        return { message: `Defeated by ${monster.name}! Teleported to entrance.`, type: 'monster' };
+        if (tile) tile.encounter = null;
+        return { message: `Defeated by ${monster.name}! Teleported to entrance.`, type: 'monster', resolved: true };
       }
-      return { message: `Defeated by ${monster.name}. -${damage} HP.`, type: 'monster' };
+      return { message: `Defeated by ${monster.name}. -${damage} HP.`, type: 'monster', resolved: true };
     }
-  } else {
-    const player = state.players[state.currentPlayer];
+  } else if (state.currentEncounter.type === 'treasure') {
     const treasure = state.currentEncounter;
-    const pos = player.position;
-    const tile = state.dungeon.get(posKey(pos.row, pos.col));
     if (tile) tile.encounter = null;
 
     if (treasure.effect === 'heal') {
       player.currentHp = Math.min(player.hp, player.currentHp + treasure.value);
-      return { message: `Found ${treasure.name}! +${treasure.value} HP.`, type: 'treasure' };
+      return { message: `Found ${treasure.name}! +${treasure.value} HP.`, type: 'treasure', resolved: true };
     }
-    return { message: `Found ${treasure.name}!`, type: 'treasure' };
+    return { message: `Found ${treasure.name}!`, type: 'treasure', resolved: true };
+  } else if (state.currentEncounter.type === 'event') {
+    const event = state.currentEncounter;
+    if (tile) tile.encounter = null;
+
+    if (event.effect === 'trap') {
+      const damage = event.damage || 5;
+      player.currentHp -= damage;
+      if (player.currentHp <= 0) {
+        player.currentHp = player.hp;
+        player.position = { row: 0, col: 0 };
+        return { message: `${event.name}! took ${damage} damage. Teleported to entrance.`, type: 'monster', resolved: true };
+      }
+      return { message: `${event.name}! took ${damage} damage.`, type: 'monster', resolved: true };
+    } else if (event.effect === 'heal') {
+      const heal = event.value || 10;
+      player.currentHp = Math.min(player.hp, player.currentHp + heal);
+      return { message: `${event.name}! Restored ${heal} HP.`, type: 'treasure', resolved: true };
+    } else if (event.effect === 'gold') {
+      return { message: `${event.name}!`, type: 'treasure', resolved: true };
+    }
+    return { message: `${event.name}!`, type: 'hero', resolved: true };
   }
+
+  if (tile) tile.encounter = null;
+  return { message: 'Encounter resolved.', type: 'hero', resolved: true };
 }
 
 function nextTurn() {
@@ -311,7 +328,6 @@ function nextTurn() {
   state.currentTile = null;
   state.currentRotation = 0;
   state.moveTarget = null;
-  state.exploreDir = null;
   state.phase = 'move';
   state.currentPlayer = (state.currentPlayer + 1) % state.players.length;
   if (state.currentPlayer === 0) state.turn++;
@@ -369,8 +385,8 @@ function renderBoard() {
   const encDeckEl = document.getElementById('encounter-deck');
   roomDeckEl.textContent = `Room Deck (${state.roomDeck.length})`;
   encDeckEl.textContent = `Encounter Deck (${state.encounterDeck.length})`;
-  roomDeckEl.classList.toggle('disabled', true);
-  encDeckEl.classList.toggle('disabled', state.phase !== 'draw-encounter');
+  roomDeckEl.classList.add('disabled');
+  encDeckEl.classList.add('disabled');
 }
 
 function renderTileContent(tile, row, col) {
@@ -386,7 +402,8 @@ function renderTileContent(tile, row, col) {
   html += `<div class="tile-center">${tile.name}</div>`;
 
   if (tile.encounter) {
-    html += `<div class="tile-encounter ${tile.encounter.type}">${tile.encounter.type === 'monster' ? '⚔' : '★'}</div>`;
+    const icon = tile.encounter.type === 'monster' ? '⚔' : tile.encounter.type === 'event' ? '⚠' : '★';
+    html += `<div class="tile-encounter ${tile.encounter.type}">${icon}</div>`;
   }
 
   if (playersHere.length > 0) {
@@ -431,19 +448,13 @@ function renderMovementOptions() {
 
 function renderPreview() {
   const preview = document.getElementById('room-preview');
-  const rotateBtn = document.getElementById('rotate-btn');
-  const confirmBtn = document.getElementById('confirm-placement-btn');
 
   if (!state.currentTile || state.phase !== 'place-tile') {
     preview.classList.add('hidden');
-    rotateBtn.classList.add('hidden');
-    confirmBtn.classList.add('hidden');
     return;
   }
 
   preview.classList.remove('hidden');
-  rotateBtn.classList.remove('hidden');
-  confirmBtn.classList.remove('hidden');
 
   const rotated = rotateExits(state.currentTile, state.currentRotation);
 
@@ -457,8 +468,6 @@ function renderPreview() {
   html += `<div class="tile-center">${state.currentTile.name}</div>`;
   html += '</div>';
 
-  const dirLabel = state.exploreDir ? ` towards ${state.exploreDir}` : '';
-  html += `<div class="preview-info">Rotation: ${getRotationLabel(state.currentRotation)}</div>`;
   preview.innerHTML = html;
 }
 
@@ -523,23 +532,25 @@ function renderEncounter() {
       </div>
     `;
 
-    if (state.phase === 'resolve-encounter' && enc.type === 'monster') {
-      rollBtn.classList.remove('hidden');
-      resolveBtn.classList.remove('hidden');
-    } else if (state.phase === 'resolve-encounter' && enc.type === 'treasure') {
-      resolveBtn.classList.remove('hidden');
+    if (state.phase === 'resolve-encounter') {
+      if (enc.type === 'monster') {
+        rollBtn.classList.remove('hidden');
+        resolveBtn.classList.add('hidden');
+        diceResult.classList.toggle('hidden', state.lastDiceRoll === null);
+      } else {
+        resolveBtn.classList.remove('hidden');
+        rollBtn.classList.add('hidden');
+        diceResult.classList.add('hidden');
+      }
+    } else {
       rollBtn.classList.add('hidden');
+      resolveBtn.classList.add('hidden');
+      diceResult.classList.add('hidden');
     }
   } else {
     card.innerHTML = '<p>No current encounter</p>';
     rollBtn.classList.add('hidden');
     resolveBtn.classList.add('hidden');
-  }
-
-  if (state.lastDiceRoll !== null) {
-    diceResult.textContent = `Rolled: ${state.lastDiceRoll}`;
-    diceResult.classList.remove('hidden');
-  } else {
     diceResult.classList.add('hidden');
   }
 
@@ -596,16 +607,14 @@ function onExploreTile(row, col, fromDir) {
   if (state.phase !== 'move') return;
 
   state.moveTarget = { row, col, fromDir };
-  state.exploreDir = fromDir;
   state.phase = 'draw-tile';
-  log(`Draw a room card to place ${fromDir}.`, 'hero');
-  render();
+  processDrawTile();
 }
 
-function onDrawTile() {
+function processDrawTile() {
   if (state.phase !== 'draw-tile') return;
   const tile = drawTile();
-  if (!tile) { log('Room deck empty!', 'monster'); return; }
+  if (!tile) { log('Room deck empty!', 'monster'); nextTurn(); render(); return; }
   state.currentTile = tile;
   state.currentRotation = 0;
   log(`Drew: ${tile.name}`, 'hero');
@@ -615,33 +624,14 @@ function onDrawTile() {
 
   if (validRotation !== null) {
     state.currentRotation = validRotation;
-    log(`Auto-rotated to ${getRotationLabel(validRotation)}`, 'hero');
     state.phase = 'place-tile';
   } else {
     log(`Cannot place ${tile.name} ${fromDir}. Turn ended.`, 'monster');
     state.currentTile = null;
     state.moveTarget = null;
-    state.exploreDir = null;
     nextTurn();
   }
   render();
-}
-
-function onRotateTile() {
-  if (state.phase !== 'place-tile') return;
-  state.currentRotation = (state.currentRotation + 90) % 360;
-  log(`Rotated clockwise to ${getRotationLabel(state.currentRotation)}`, 'hero');
-  render();
-}
-
-function onConfirmPlacement() {
-  if (state.phase !== 'place-tile') return;
-  const { row, col, fromDir } = state.moveTarget;
-  if (!canPlaceInDir(state.currentTile, state.currentRotation, row, col, fromDir)) {
-    log('Cannot place here with this rotation!', 'monster');
-    return;
-  }
-  log('Click the green spot to place the tile.', 'hero');
 }
 
 function onPlacementSelect(row, col) {
@@ -654,14 +644,13 @@ function onPlacementSelect(row, col) {
   state.currentTile = null;
   state.currentRotation = 0;
   state.phase = 'draw-encounter';
-
-  render();
+  processDrawEncounter();
 }
 
-function onDrawEncounter() {
+function processDrawEncounter() {
   if (state.phase !== 'draw-encounter') return;
   const enc = drawEncounterCard();
-  if (!enc) { log('Encounter deck empty!', 'monster'); return; }
+  if (!enc) { log('Encounter deck empty!', 'monster'); nextTurn(); render(); return; }
 
   const player = state.players[state.currentPlayer];
   const pos = player.position;
@@ -671,6 +660,12 @@ function onDrawEncounter() {
   state.currentEncounter = enc;
   log(`Encounter: ${enc.name}`, enc.type === 'monster' ? 'monster' : 'treasure');
   state.phase = 'resolve-encounter';
+
+  if (enc.type !== 'monster') {
+    const result = resolveEncounter();
+    log(result.message, result.type);
+    nextTurn();
+  }
   render();
 }
 
@@ -698,12 +693,8 @@ async function init() {
 
     initializeGame(rooms, encounters, heroes);
 
-    document.getElementById('room-deck').addEventListener('click', onDrawTile);
-    document.getElementById('encounter-deck').addEventListener('click', onDrawEncounter);
     document.getElementById('roll-dice').addEventListener('click', onRollDice);
     document.getElementById('resolve-btn').addEventListener('click', onResolve);
-    document.getElementById('rotate-btn').addEventListener('click', onRotateTile);
-    document.getElementById('confirm-placement-btn').addEventListener('click', onConfirmPlacement);
 
     render();
     log('Game started! Click a ? tile adjacent to your hero to explore.', 'hero');
