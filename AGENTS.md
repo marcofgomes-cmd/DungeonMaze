@@ -4,17 +4,17 @@ Browser-based board game for 2-4 players. Tile-based dungeon exploration with di
 
 ## Quick Start
 
-Open `index.html` in a browser. No build step, no server required.
+Run `start.bat` to launch a local server at `http://localhost:8000`. No build step required.
 
 ## Game Design
 
 - **Players**: 2-4 local, each controls one hero
 - **Objective**: Defeat the final boss
-- **Turn Flow**: Draw tile → Rotate → Place tile → Draw encounter → Resolve
+- **Turn Flow**: Move → Draw room → Rotate → Place → Draw encounter → Resolve
 - **Combat**: Virtual d20 dice rolls (hero stats vs monster stats)
 - **Hero Classes**: Warrior, Wizard, Rogue, Cleric
 
-## Dungeon Tiles
+## Room Tiles
 
 Tiles have directional exits (north, south, west, east) that must connect properly. Players can rotate tiles to change exit directions:
 - **Corridor**: Two opposite exits
@@ -29,12 +29,14 @@ Tiles have directional exits (north, south, west, east) that must connect proper
 ```
 /
 ├── index.html              # Entry point
+├── start.bat               # Launch local server
+├── start.ps1               # PowerShell server script
 ├── css/
 │   └── styles.css
 ├── js/
 │   └── game.js             # All game logic
 ├── data/
-│   ├── dungeon-cards.json  # Tile definitions (excludes entrance)
+│   ├── room-cards.json     # Room tile definitions (excludes entrance)
 │   ├── encounter-cards.json # Monsters, treasures, events
 │   └── heroes.json         # Hero class stats
 └── AGENTS.md
@@ -42,7 +44,7 @@ Tiles have directional exits (north, south, west, east) that must connect proper
 
 ## JSON Data Format
 
-### dungeon-cards.json
+### room-cards.json
 ```json
 [
   {
@@ -72,7 +74,7 @@ Manual testing in browser console.
 
 ## Tile Editing
 
-Edit `/data/dungeon-cards.json` to:
+Edit `/data/room-cards.json` to:
 - Add/remove tile types
 - Adjust tile quantities
 - Modify exit configurations

@@ -3,11 +3,11 @@
 // ============================================
 
 // --- DATA ---
-let dungeonCards = [];
+let roomCards = [];
 let encounterCards = [];
 let heroesData = [];
 
-const fallbackDungeonCards = [
+const fallbackRoomCards = [
   { id: 'tile-entrance', name: 'Entrance', type: 'entrance', north: true, south: true, west: true, east: true, exit: false, quantity: 1 },
   { id: 'tile-corridor', name: 'Corridor', type: 'corridor', north: true, south: true, west: false, east: false, exit: false, quantity: 8 },
   { id: 'tile-dead-end', name: 'Dead End', type: 'dead-end', north: true, south: false, west: false, east: false, exit: false, quantity: 6 },
@@ -37,7 +37,7 @@ const state = {
   turn: 1,
   currentPlayer: 0,
   players: [],
-  dungeonDeck: [],
+  roomDeck: [],
   encounterDeck: [],
   dungeon: new Map(),
   currentTile: null,
@@ -146,12 +146,12 @@ function log(message, type = 'hero') {
 }
 
 // --- DATA LOADING ---
-async function loadDungeonCards() {
+async function loadRoomCards() {
   try {
-    const response = await fetch('data/dungeon-cards.json');
+    const response = await fetch('data/room-cards.json');
     return await response.json();
   } catch {
-    return fallbackDungeonCards;
+    return fallbackRoomCards;
   }
 }
 
@@ -174,9 +174,9 @@ async function loadHeroes() {
 }
 
 // --- GAME LOGIC ---
-function initializeGame(dungeon, encounters, heroList) {
-  const dungeonWithoutEntrance = dungeon.filter(c => c.id !== 'tile-entrance');
-  state.dungeonDeck = shuffle(expandDeckByQuantity(dungeonWithoutEntrance));
+function initializeGame(rooms, encounters, heroList) {
+  const roomsWithoutEntrance = rooms.filter(c => c.id !== 'tile-entrance');
+  state.roomDeck = shuffle(expandDeckByQuantity(roomsWithoutEntrance));
   state.encounterDeck = shuffle(expandDeckByQuantity(encounters));
 
   state.players = heroList.map((hero, i) => ({
@@ -264,7 +264,7 @@ function movePlayer(row, col) {
 }
 
 function drawTile() {
-  return state.dungeonDeck.pop() || null;
+  return state.roomDeck.pop() || null;
 }
 
 function drawEncounterCard() {
@@ -376,11 +376,11 @@ function renderBoard() {
     renderMovementOptions();
   }
 
-  const deckEl = document.getElementById('dungeon-deck');
+  const roomDeckEl = document.getElementById('room-deck');
   const encDeckEl = document.getElementById('encounter-deck');
-  deckEl.textContent = `Dungeon Deck (${state.dungeonDeck.length})`;
+  roomDeckEl.textContent = `Room Deck (${state.roomDeck.length})`;
   encDeckEl.textContent = `Encounter Deck (${state.encounterDeck.length})`;
-  deckEl.classList.toggle('disabled', true);
+  roomDeckEl.classList.toggle('disabled', true);
   encDeckEl.classList.toggle('disabled', state.phase !== 'draw-encounter');
 }
 
@@ -441,7 +441,7 @@ function renderMovementOptions() {
 }
 
 function renderPreview() {
-  const preview = document.getElementById('tile-preview');
+  const preview = document.getElementById('room-preview');
   const rotateBtn = document.getElementById('rotate-btn');
   const confirmBtn = document.getElementById('confirm-placement-btn');
 
@@ -607,14 +607,14 @@ function onExploreTile(row, col) {
 
   state.moveTarget = { row, col };
   state.phase = 'draw-tile';
-  log('Draw a tile from the dungeon deck.', 'hero');
+  log('Draw a card from the room deck.', 'hero');
   render();
 }
 
 function onDrawTile() {
   if (state.phase !== 'draw-tile') return;
   const tile = drawTile();
-  if (!tile) { log('Dungeon deck empty!', 'monster'); return; }
+  if (!tile) { log('Room deck empty!', 'monster'); return; }
   state.currentTile = tile;
   state.currentRotation = 0;
   log(`Drew: ${tile.name}`, 'hero');
@@ -685,15 +685,15 @@ function onResolve() {
 // --- INITIALIZATION ---
 async function init() {
   try {
-    const [dungeon, encounters, heroes] = await Promise.all([
-      loadDungeonCards(),
+    const [rooms, encounters, heroes] = await Promise.all([
+      loadRoomCards(),
       loadEncounterCards(),
       loadHeroes()
     ]);
 
-    initializeGame(dungeon, encounters, heroes);
+    initializeGame(rooms, encounters, heroes);
 
-    document.getElementById('dungeon-deck').addEventListener('click', onDrawTile);
+    document.getElementById('room-deck').addEventListener('click', onDrawTile);
     document.getElementById('encounter-deck').addEventListener('click', onDrawEncounter);
     document.getElementById('roll-dice').addEventListener('click', onRollDice);
     document.getElementById('resolve-btn').addEventListener('click', onResolve);
