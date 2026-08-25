@@ -302,6 +302,7 @@ export function renderEncounter() {
           rollBtn.classList.remove('hidden');
           resolveBtn.classList.add('hidden');
           diceResult.classList.add('hidden');
+          diceResult.innerHTML = '';
         } else {
           rollBtn.classList.add('hidden');
           resolveBtn.classList.remove('hidden');
@@ -315,17 +316,20 @@ export function renderEncounter() {
         resolveBtn.classList.remove('hidden');
         rollBtn.classList.add('hidden');
         diceResult.classList.add('hidden');
+        diceResult.innerHTML = '';
       }
     } else {
       rollBtn.classList.add('hidden');
       resolveBtn.classList.add('hidden');
       diceResult.classList.add('hidden');
+      diceResult.innerHTML = '';
     }
   } else {
     card.innerHTML = '<p>No current encounter</p>';
     rollBtn.classList.add('hidden');
     resolveBtn.classList.add('hidden');
     diceResult.classList.add('hidden');
+    diceResult.innerHTML = '';
   }
 
   document.getElementById('turn-display').textContent = `Turn: ${state.turn}`;
