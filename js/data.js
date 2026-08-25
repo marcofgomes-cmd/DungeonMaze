@@ -14,8 +14,8 @@ export const fallbackRoomCards = [
 ];
 
 export const fallbackEncounterCards = [
-  { id: 'monster-001', name: 'Goblin', type: 'monster', hp: 5, attack: 3, defense: 1, description: 'Small creature.' },
-  { id: 'monster-002', name: 'Skeleton', type: 'monster', hp: 8, attack: 4, defense: 2, description: 'Animated bones.' },
+  { id: 'monster-001', name: 'Goblin', type: 'monster', hp: 5, attack: 3, defense: 1, gold: 10, description: 'Small creature.' },
+  { id: 'monster-002', name: 'Skeleton', type: 'monster', hp: 8, attack: 4, defense: 2, gold: 15, description: 'Animated bones.' },
   { id: 'treasure-001', name: 'Health Potion', type: 'treasure', effect: 'heal', value: 10, description: 'Restores vitality.' },
   { id: 'treasure-002', name: 'Gold Coins', type: 'treasure', effect: 'gold', value: 25, description: 'Shimmering coins.' }
 ];

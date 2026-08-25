@@ -33,6 +33,7 @@ function initializeGame(rooms, encounters, heroList) {
     id: i,
     ...hero,
     currentHp: hero.hp,
+    gold: 0,
     position: { row: 0, col: 0 }
   }));
 

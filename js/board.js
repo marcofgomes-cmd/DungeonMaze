@@ -271,6 +271,7 @@ export function renderHeroes() {
     div.innerHTML = `
       <div class="name" style="color:${PLAYER_COLORS[index]}">${player.name}</div>
       <div class="stats">HP: ${player.currentHp}/${player.hp} | ATK: ${player.attack} | DEF: ${player.defense}</div>
+      <div class="stats">Gold: ${player.gold}</div>
     `;
     container.appendChild(div);
   });

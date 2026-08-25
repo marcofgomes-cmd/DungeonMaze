@@ -6,7 +6,7 @@
     "hp": 5,
     "attack": 3,
     "defense": 1,
-    "treasure": 10,
+    "gold": 10,
     "xp": 5,
     "description": "A small, cunning creature with sharp teeth.",
     "quantity": 4
@@ -18,7 +18,7 @@
     "hp": 8,
     "attack": 4,
     "defense": 2,
-    "treasure": 15,
+    "gold": 15,
     "xp": 8,
     "description": "Ancient bones animated by dark magic.",
     "quantity": 3
@@ -30,7 +30,7 @@
     "hp": 12,
     "attack": 6,
     "defense": 3,
-    "treasure": 25,
+    "gold": 25,
     "xp": 12,
     "description": "A hulking figure with a massive axe.",
     "quantity": 2
@@ -42,7 +42,7 @@
     "hp": 6,
     "attack": 5,
     "defense": 1,
-    "treasure": 20,
+    "gold": 20,
     "xp": 10,
     "description": "A formless darkness that drains life.",
     "quantity": 2
@@ -54,7 +54,7 @@
     "hp": 15,
     "attack": 7,
     "defense": 4,
-    "treasure": 35,
+    "gold": 35,
     "xp": 15,
     "description": "A massive creature with regenerative flesh.",
     "quantity": 2
@@ -66,7 +66,7 @@
     "hp": 20,
     "attack": 10,
     "defense": 6,
-    "treasure": 50,
+    "gold": 50,
     "xp": 25,
     "description": "A young dragon with scales like armor.",
     "quantity": 1
@@ -78,7 +78,7 @@
     "hp": 3,
     "attack": 2,
     "defense": 0,
-    "treasure": 5,
+    "gold": 5,
     "xp": 2,
     "description": "An oversized rodent with beady eyes.",
     "quantity": 4
@@ -90,7 +90,7 @@
     "hp": 7,
     "attack": 3,
     "defense": 1,
-    "treasure": 8,
+    "gold": 8,
     "xp": 4,
     "description": "A shambling corpse with empty eyes.",
     "quantity": 3
@@ -102,7 +102,7 @@
     "hp": 10,
     "attack": 8,
     "defense": 2,
-    "treasure": 30,
+    "gold": 30,
     "xp": 15,
     "description": "A hooded figure crackling with dark energy.",
     "quantity": 2
@@ -114,7 +114,7 @@
     "hp": 9,
     "attack": 5,
     "defense": 2,
-    "treasure": 15,
+    "gold": 15,
     "xp": 8,
     "description": "A massive arachnid dripping with venom.",
     "quantity": 3
@@ -126,7 +126,7 @@
     "hp": 14,
     "attack": 8,
     "defense": 3,
-    "treasure": 40,
+    "gold": 40,
     "xp": 18,
     "description": "A half-man half-beast with razor claws.",
     "quantity": 1
@@ -138,7 +138,7 @@
     "hp": 25,
     "attack": 9,
     "defense": 8,
-    "treasure": 60,
+    "gold": 60,
     "xp": 30,
     "description": "An animated statue of solid rock.",
     "quantity": 1

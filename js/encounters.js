@@ -38,9 +38,10 @@ export function resolveEncounter() {
     messages.push(`${monster.name} rolled ${combat.monsterRoll} + ${monster.attack} ATK - ${player.defense} DEF = ${monsterDamage} damage`);
 
     if (monster.currentHp <= 0) {
-      player.currentHp = Math.min(player.hp, player.currentHp + 5);
+      const goldEarned = monster.gold || 0;
+      player.gold += goldEarned;
       if (tile) tile.encounter = null;
-      messages.push(`${monster.name} defeated! +5 HP.`);
+      messages.push(`${monster.name} defeated! +${goldEarned} gold.`);
       return { message: messages.join(' | '), type: 'treasure', resolved: true };
     }
 
