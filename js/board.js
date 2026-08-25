@@ -122,10 +122,10 @@ export function renderBoard() {
   const keys = Array.from(state.dungeon.keys()).map(parseKey);
   if (keys.length === 0) return;
 
-  const minRow = Math.min(...keys.map(k => k.row));
-  const maxRow = Math.max(...keys.map(k => k.row));
-  const minCol = Math.min(...keys.map(k => k.col));
-  const maxCol = Math.max(...keys.map(k => k.col));
+  const minRow = Math.min(...keys.map(k => k.row)) - 1;
+  const maxRow = Math.max(...keys.map(k => k.row)) + 1;
+  const minCol = Math.min(...keys.map(k => k.col)) - 1;
+  const maxCol = Math.max(...keys.map(k => k.col)) + 1;
 
   const rows = maxRow - minRow + 1;
   const cols = maxCol - minCol + 1;
@@ -181,8 +181,8 @@ export function renderMovementOptions() {
   const keys = Array.from(state.dungeon.keys()).map(parseKey);
 
   if (keys.length === 0) return;
-  const minRow = Math.min(...keys.map(k => k.row));
-  const minCol = Math.min(...keys.map(k => k.col));
+  const minRow = Math.min(...keys.map(k => k.row)) - 1;
+  const minCol = Math.min(...keys.map(k => k.col)) - 1;
 
   for (const t of emptyTiles) {
     const div = document.createElement('div');
@@ -202,15 +202,16 @@ export function renderMovementOptions() {
 }
 
 export function renderPreview() {
+  const previewSection = document.getElementById('preview-panel');
   const preview = document.getElementById('room-preview');
   const rotateBtn = document.getElementById('rotate-btn');
 
   if (!state.currentTile || state.phase !== 'place-tile') {
-    preview.classList.add('hidden');
-    rotateBtn.classList.add('hidden');
+    previewSection.classList.add('hidden');
     return;
   }
 
+  previewSection.classList.remove('hidden');
   preview.classList.remove('hidden');
   rotateBtn.classList.remove('hidden');
 
@@ -241,8 +242,8 @@ export function renderPlacementOptions() {
     const keys = Array.from(state.dungeon.keys()).map(parseKey);
 
     if (keys.length === 0) return;
-    const minRow = Math.min(...keys.map(k => k.row));
-    const minCol = Math.min(...keys.map(k => k.col));
+    const minRow = Math.min(...keys.map(k => k.row)) - 1;
+    const minCol = Math.min(...keys.map(k => k.col)) - 1;
 
     const div = document.createElement('div');
     div.className = 'placement-option';
