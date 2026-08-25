@@ -48,7 +48,7 @@ function initializeGame(rooms, encounters, heroList) {
 
 function nextTurn() {
   state.currentEncounter = null;
-  state.lastDiceRoll = null;
+  state.combatResult = null;
   state.currentTile = null;
   state.currentRotation = 0;
   state.moveTarget = null;
@@ -157,8 +157,8 @@ function processDrawEncounter() {
 
 // --- UI BUTTON HANDLERS ---
 function onRollDice() {
-  rollD20();
-  log(`Rolled: ${state.lastDiceRoll}`, 'hero');
+  const combat = rollCombatDice();
+  log(`You rolled ${combat.heroRoll} | ${state.currentEncounter.name} rolled ${combat.monsterRoll}`, 'hero');
   render();
 }
 
@@ -184,7 +184,11 @@ function onRotateTile() {
 function onResolve() {
   const result = resolveEncounter();
   log(result.message, result.type);
-  nextTurn();
+  if (result.resolved) {
+    nextTurn();
+  } else {
+    state.combatResult = null;
+  }
   render();
 }
 

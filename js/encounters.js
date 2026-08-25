@@ -6,8 +6,14 @@ import { state } from './state.js';
 import { posKey } from './utils.js';
 
 export function rollD20() {
-  state.lastDiceRoll = Math.floor(Math.random() * 20) + 1;
-  return state.lastDiceRoll;
+  return Math.floor(Math.random() * 20) + 1;
+}
+
+export function rollCombatDice() {
+  const heroRoll = rollD20();
+  const monsterRoll = rollD20();
+  state.combatResult = { heroRoll, monsterRoll };
+  return state.combatResult;
 }
 
 export function resolveEncounter() {
@@ -19,25 +25,35 @@ export function resolveEncounter() {
 
   if (state.currentEncounter.type === 'monster') {
     const monster = state.currentEncounter;
-    const roll = state.lastDiceRoll || rollD20();
-    const playerPower = player.attack + roll;
-    const monsterPower = monster.attack + Math.floor(Math.random() * 10) + 1;
+    const combat = state.combatResult || rollCombatDice();
 
-    if (playerPower > monsterPower) {
+    const heroDamage = Math.max(0, combat.heroRoll + player.attack - monster.defense);
+    const monsterDamage = Math.max(0, combat.monsterRoll + monster.attack - player.defense);
+
+    monster.currentHp = (monster.currentHp || monster.hp) - heroDamage;
+    player.currentHp -= monsterDamage;
+
+    const messages = [];
+    messages.push(`You rolled ${combat.heroRoll} + ${player.attack} ATK - ${monster.defense} DEF = ${heroDamage} damage`);
+    messages.push(`${monster.name} rolled ${combat.monsterRoll} + ${monster.attack} ATK - ${player.defense} DEF = ${monsterDamage} damage`);
+
+    if (monster.currentHp <= 0) {
       player.currentHp = Math.min(player.hp, player.currentHp + 5);
       if (tile) tile.encounter = null;
-      return { message: `Victory! Defeated ${monster.name}! +5 HP.`, type: 'treasure', resolved: true };
-    } else {
-      const damage = Math.max(1, monster.attack - player.defense);
-      player.currentHp -= damage;
-      if (player.currentHp <= 0) {
-        player.currentHp = player.hp;
-        player.position = { row: 0, col: 0 };
-        if (tile) tile.encounter = null;
-        return { message: `Defeated by ${monster.name}! Teleported to entrance.`, type: 'monster', resolved: true };
-      }
-      return { message: `Defeated by ${monster.name}. -${damage} HP.`, type: 'monster', resolved: true };
+      messages.push(`${monster.name} defeated! +5 HP.`);
+      return { message: messages.join(' | '), type: 'treasure', resolved: true };
     }
+
+    if (player.currentHp <= 0) {
+      player.currentHp = player.hp;
+      player.position = { row: 0, col: 0 };
+      if (tile) tile.encounter = null;
+      messages.push(`Defeated! Teleported to entrance.`);
+      return { message: messages.join(' | '), type: 'monster', resolved: true };
+    }
+
+    messages.push(`You: ${player.currentHp}/${player.hp} HP | ${monster.name}: ${monster.currentHp}/${monster.hp} HP`);
+    return { message: messages.join(' | '), type: 'monster', resolved: false };
   } else if (state.currentEncounter.type === 'treasure') {
     const treasure = state.currentEncounter;
     if (tile) tile.encounter = null;

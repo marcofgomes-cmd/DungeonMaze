@@ -284,17 +284,20 @@ export function renderEncounter() {
 
   if (state.currentEncounter) {
     const enc = state.currentEncounter;
+    const player = state.players[state.currentPlayer];
+    const hpDisplay = enc.type === 'monster'
+      ? `HP: ${enc.currentHp || enc.hp}/${enc.hp} | ATK: ${enc.attack} | DEF: ${enc.defense}`
+      : `Effect: ${enc.effect}`;
+
     card.innerHTML = `
       <h3>${enc.name}</h3>
       <p>${enc.description || ''}</p>
-      <div class="stats">
-        ${enc.type === 'monster' ? `HP: ${enc.hp} | ATK: ${enc.attack} | DEF: ${enc.defense}` : `Effect: ${enc.effect}`}
-      </div>
+      <div class="stats">${hpDisplay}</div>
     `;
 
     if (state.phase === 'resolve-encounter') {
       if (enc.type === 'monster') {
-        if (state.lastDiceRoll === null) {
+        if (!state.combatResult) {
           rollBtn.classList.remove('hidden');
           resolveBtn.classList.add('hidden');
           diceResult.classList.add('hidden');
@@ -302,6 +305,10 @@ export function renderEncounter() {
           rollBtn.classList.add('hidden');
           resolveBtn.classList.remove('hidden');
           diceResult.classList.remove('hidden');
+          diceResult.innerHTML = `
+            <div class="dice-white" title="Hero dice">⬥ ${state.combatResult.heroRoll}</div>
+            <div class="dice-black" title="Monster dice">⬥ ${state.combatResult.monsterRoll}</div>
+          `;
         }
       } else {
         resolveBtn.classList.remove('hidden');

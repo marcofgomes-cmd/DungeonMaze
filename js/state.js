@@ -12,7 +12,7 @@ export const state = {
   currentTile: null,
   currentRotation: 0,
   currentEncounter: null,
-  lastDiceRoll: null,
+  combatResult: null,
   phase: 'move',
   moveTarget: null
 };
@@ -27,7 +27,7 @@ export function resetState() {
   state.currentTile = null;
   state.currentRotation = 0;
   state.currentEncounter = null;
-  state.lastDiceRoll = null;
+  state.combatResult = null;
   state.phase = 'move';
   state.moveTarget = null;
 }
