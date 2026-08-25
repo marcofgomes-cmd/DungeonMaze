@@ -5,13 +5,13 @@
 import { state } from './state.js';
 import { posKey } from './utils.js';
 
-export function rollD20() {
-  return Math.floor(Math.random() * 20) + 1;
+export function rollD6() {
+  return Math.floor(Math.random() * 6) + 1;
 }
 
 export function rollCombatDice() {
-  const heroRoll = rollD20();
-  const monsterRoll = rollD20();
+  const heroRoll = rollD6();
+  const monsterRoll = rollD6();
   state.combatResult = { heroRoll, monsterRoll };
   return state.combatResult;
 }

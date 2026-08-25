@@ -5,7 +5,7 @@
 import { state } from './state.js';
 import { shuffle, expandDeckByQuantity, posKey, getDirDelta, getRotationLabel, rotateExits } from './utils.js';
 import { loadRoomCards, loadEncounterCards, loadHeroes } from './data.js';
-import { rollD20, resolveEncounter } from './encounters.js';
+import { rollCombatDice, resolveEncounter } from './encounters.js';
 import {
   canPlaceInDir, findValidRotation, placeTile, movePlayer,
   drawTile, drawEncounterCard, render
