@@ -202,16 +202,16 @@ export function renderMovementOptions() {
 }
 
 export function renderPreview() {
-  const previewSection = document.getElementById('preview-panel');
   const preview = document.getElementById('room-preview');
   const rotateBtn = document.getElementById('rotate-btn');
 
   if (!state.currentTile || state.phase !== 'place-tile') {
-    previewSection.classList.add('hidden');
+    preview.classList.add('hidden');
+    rotateBtn.classList.add('hidden');
+    preview.innerHTML = '';
     return;
   }
 
-  previewSection.classList.remove('hidden');
   preview.classList.remove('hidden');
   rotateBtn.classList.remove('hidden');
 
