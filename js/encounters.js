@@ -42,7 +42,9 @@ export function resolveEncounter() {
       player.gold += goldEarned;
       if (tile) tile.encounter = null;
       messages.push(`${monster.name} defeated! +${goldEarned} gold.`);
-      return { message: messages.join(' | '), type: 'treasure', resolved: true };
+
+      const isBoss = monster.id && monster.id.includes('boss');
+      return { message: messages.join(' | '), type: 'treasure', resolved: true, questComplete: isBoss };
     }
 
     if (player.currentHp <= 0) {

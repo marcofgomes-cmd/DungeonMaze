@@ -2,9 +2,9 @@
 // DUNGEON MAZE - Main Game Orchestrator
 // ============================================
 
-import { state } from './state.js';
+import { state, resetState } from './state.js';
 import { shuffle, expandDeckByQuantity, posKey, getDirDelta, getRotationLabel, rotateExits } from './utils.js';
-import { loadRoomCards, loadEncounterCards, loadHeroes } from './data.js';
+import { loadRoomCards, loadHeroes, loadQuests } from './data.js';
 import { rollCombatDice, resolveEncounter } from './encounters.js';
 import {
   canPlaceInDir, findValidRotation, placeTile, movePlayer,
@@ -23,28 +23,75 @@ function log(message, type = 'hero') {
   }
 }
 
+// --- QUEST SELECTION ---
+function showQuestScreen(quests) {
+  const questScreen = document.getElementById('quest-screen');
+  const gameScreen = document.getElementById('game-screen');
+  const questList = document.getElementById('quest-list');
+
+  questScreen.classList.remove('hidden');
+  gameScreen.classList.add('hidden');
+
+  questList.innerHTML = '';
+  quests.forEach((quest, index) => {
+    const card = document.createElement('div');
+    card.className = 'quest-card';
+    card.innerHTML = `
+      <h3>${quest.name}</h3>
+      <p>${quest.description}</p>
+      <div class="quest-reward">Reward: ${quest.reward} gold</div>
+    `;
+    card.addEventListener('click', () => selectQuest(quest, index, quests));
+    questList.appendChild(card);
+  });
+}
+
+function selectQuest(quest, index, quests) {
+  state.currentQuest = quest;
+  state.questIndex = index;
+  state.quests = quests;
+
+  document.getElementById('quest-screen').classList.add('hidden');
+  document.getElementById('game-screen').classList.remove('hidden');
+  document.getElementById('quest-name-display').textContent = quest.name;
+
+  startGame(quest.encounters);
+}
+
 // --- GAME INITIALIZATION ---
-function initializeGame(rooms, encounters, heroList) {
+async function startGame(encounters) {
+  const rooms = await loadRoomCards();
+  const heroList = await loadHeroes();
+
   const roomsWithoutEntrance = rooms.filter(c => c.id !== 'tile-entrance');
   state.roomDeck = shuffle(expandDeckByQuantity(roomsWithoutEntrance));
   state.encounterDeck = shuffle(expandDeckByQuantity(encounters));
 
-  state.players = heroList.map((hero, i) => ({
-    id: i,
-    ...hero,
-    currentHp: hero.hp,
-    gold: 0,
-    position: { row: 0, col: 0 }
-  }));
+  if (state.players.length === 0) {
+    state.players = heroList.map((hero, i) => ({
+      id: i,
+      ...hero,
+      currentHp: hero.hp,
+      gold: 0,
+      position: { row: 0, col: 0 }
+    }));
+  }
 
   state.dungeon = new Map();
-
   const entrance = {
     id: 'tile-entrance', name: 'Entrance', type: 'entrance',
     north: true, south: true, west: true, east: true,
     explored: true, encounter: null
   };
   state.dungeon.set(posKey(0, 0), entrance);
+
+  state.turn = 1;
+  state.currentPlayer = 0;
+  state.phase = 'move';
+
+  render();
+  log(`Quest: ${state.currentQuest.name}`, 'hero');
+  log('Click a ? tile adjacent to your hero to explore.', 'hero');
 }
 
 function nextTurn() {
@@ -186,30 +233,42 @@ function onResolve() {
   const result = resolveEncounter();
   log(result.message, result.type);
   if (result.resolved) {
-    nextTurn();
+    if (result.questComplete) {
+      completeQuest();
+    } else {
+      nextTurn();
+    }
   } else {
     state.combatResult = null;
   }
   render();
 }
 
+function completeQuest() {
+  const goldReward = state.currentQuest.reward || 0;
+  state.players.forEach(p => p.gold += goldReward);
+  log(`Quest Complete! Each player receives ${goldReward} gold!`, 'treasure');
+
+  if (state.questIndex < state.quests.length - 1) {
+    log('Starting next quest...', 'hero');
+    state.questIndex++;
+    state.currentQuest = state.quests[state.questIndex];
+    document.getElementById('quest-name-display').textContent = state.currentQuest.name;
+    startGame(state.currentQuest.encounters);
+  } else {
+    log('All quests complete! Victory!', 'treasure');
+  }
+}
+
 // --- INITIALIZATION ---
 async function init() {
   try {
-    const [rooms, encounters, heroes] = await Promise.all([
-      loadRoomCards(),
-      loadEncounterCards(),
-      loadHeroes()
-    ]);
-
-    initializeGame(rooms, encounters, heroes);
+    const quests = await loadQuests();
+    showQuestScreen(quests);
 
     document.getElementById('roll-dice').addEventListener('click', onRollDice);
     document.getElementById('resolve-btn').addEventListener('click', onResolve);
     document.getElementById('rotate-btn').addEventListener('click', onRotateTile);
-
-    render();
-    log('Game started! Click a ? tile adjacent to your hero to explore.', 'hero');
   } catch (error) {
     console.error('Failed to initialize:', error);
   }

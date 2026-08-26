@@ -14,7 +14,10 @@ export const state = {
   currentEncounter: null,
   combatResult: null,
   phase: 'move',
-  moveTarget: null
+  moveTarget: null,
+  currentQuest: null,
+  questIndex: 0,
+  quests: []
 };
 
 export function resetState() {
@@ -30,4 +33,5 @@ export function resetState() {
   state.combatResult = null;
   state.phase = 'move';
   state.moveTarget = null;
+  state.currentQuest = null;
 }

@@ -13,13 +13,6 @@ export const fallbackRoomCards = [
   { id: 'tile-cross', name: 'Crossroads', type: 'cross', north: true, south: true, west: true, east: true, exit: false, quantity: 4 }
 ];
 
-export const fallbackEncounterCards = [
-  { id: 'monster-001', name: 'Goblin', type: 'monster', hp: 5, attack: 3, defense: 1, gold: 10, description: 'Small creature.' },
-  { id: 'monster-002', name: 'Skeleton', type: 'monster', hp: 8, attack: 4, defense: 2, gold: 15, description: 'Animated bones.' },
-  { id: 'treasure-001', name: 'Health Potion', type: 'treasure', effect: 'heal', value: 10, description: 'Restores vitality.' },
-  { id: 'treasure-002', name: 'Gold Coins', type: 'treasure', effect: 'gold', value: 25, description: 'Shimmering coins.' }
-];
-
 export const fallbackHeroes = [
   { class: 'warrior', name: 'Warrior', hp: 30, attack: 8, defense: 5, magic: 2 },
   { class: 'wizard', name: 'Wizard', hp: 20, attack: 4, defense: 3, magic: 10 },
@@ -36,20 +29,20 @@ export async function loadRoomCards() {
   }
 }
 
-export async function loadEncounterCards() {
-  try {
-    const response = await fetch('data/encounter-cards.json');
-    return await response.json();
-  } catch {
-    return fallbackEncounterCards;
-  }
-}
-
 export async function loadHeroes() {
   try {
     const response = await fetch('data/heroes.json');
     return await response.json();
   } catch {
     return fallbackHeroes;
+  }
+}
+
+export async function loadQuests() {
+  try {
+    const response = await fetch('data/quests.json');
+    return await response.json();
+  } catch {
+    return [];
   }
 }

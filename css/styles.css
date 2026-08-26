@@ -21,6 +21,65 @@ body {
   min-height: 100vh;
 }
 
+#quest-screen {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  gap: 2rem;
+}
+
+#quest-screen h1 {
+  color: #e94560;
+  font-size: 2.5rem;
+}
+
+#quest-screen h2 {
+  color: #eaeaea;
+  font-size: 1.5rem;
+}
+
+#quest-list {
+  display: flex;
+  gap: 1.5rem;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.quest-card {
+  background: #16213e;
+  border: 2px solid #0f3460;
+  border-radius: 8px;
+  padding: 1.5rem;
+  width: 350px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.quest-card:hover {
+  border-color: #e94560;
+  transform: translateY(-5px);
+}
+
+.quest-card h3 {
+  color: #e94560;
+  margin-bottom: 0.75rem;
+  font-size: 1.2rem;
+}
+
+.quest-card p {
+  color: #a0a0a0;
+  font-size: 0.9rem;
+  line-height: 1.5;
+  margin-bottom: 1rem;
+}
+
+.quest-card .quest-reward {
+  color: #ffd700;
+  font-weight: bold;
+}
+
 header {
   display: flex;
   justify-content: space-between;
