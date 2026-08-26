@@ -40,8 +40,16 @@ export async function loadHeroes() {
 
 export async function loadQuests() {
   try {
-    const response = await fetch('data/quests.json');
-    return await response.json();
+    const manifestResponse = await fetch('data/quest-manifest.json');
+    const questPaths = await manifestResponse.json();
+
+    const quests = [];
+    for (const path of questPaths) {
+      const response = await fetch(path);
+      const quest = await response.json();
+      quests.push(quest);
+    }
+    return quests;
   } catch {
     return [];
   }

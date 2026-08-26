@@ -1,0 +1,119 @@
+{
+  "id": "quest-1",
+  "name": "Den of the Orcish Raiders",
+  "description": "The King's only daughter, Princess Elinore has been kidnapped by a band of bloodthirsty Orcs and they are now hiding out in an abandoned castle. The King has promised a reward of 500 gold coins to whoever returns her to him safely. Search the abandoned castle and free the Princess and put an end to the Orcs reign of terror.",
+  "reward": 500,
+  "encounters": [
+    {
+      "id": "orc-001",
+      "name": "Orc Scout",
+      "type": "monster",
+      "hp": 6,
+      "attack": 3,
+      "defense": 1,
+      "gold": 10,
+      "description": "A lean orc patrolling the castle grounds.",
+      "quantity": 4
+    },
+    {
+      "id": "orc-002",
+      "name": "Orc Warrior",
+      "type": "monster",
+      "hp": 10,
+      "attack": 5,
+      "defense": 2,
+      "gold": 20,
+      "description": "A heavily armored orc with a brutal axe.",
+      "quantity": 3
+    },
+    {
+      "id": "orc-003",
+      "name": "Orc Brute",
+      "type": "monster",
+      "hp": 14,
+      "attack": 7,
+      "defense": 3,
+      "gold": 30,
+      "description": "A massive orc that smashes through defenses.",
+      "quantity": 2
+    },
+    {
+      "id": "orc-004",
+      "name": "Orc Shaman",
+      "type": "monster",
+      "hp": 8,
+      "attack": 6,
+      "defense": 1,
+      "gold": 25,
+      "description": "An orc wielding dark magic.",
+      "quantity": 2
+    },
+    {
+      "id": "orc-boss",
+      "name": "Orc Warlord",
+      "type": "monster",
+      "hp": 20,
+      "attack": 8,
+      "defense": 4,
+      "gold": 100,
+      "description": "The leader of the orc raiders, a terrifying foe.",
+      "quantity": 1
+    },
+    {
+      "id": "treasure-001",
+      "name": "Health Potion",
+      "type": "treasure",
+      "effect": "heal",
+      "value": 10,
+      "description": "A red liquid that restores vitality.",
+      "quantity": 3
+    },
+    {
+      "id": "treasure-002",
+      "name": "Gold Coins",
+      "type": "treasure",
+      "effect": "gold",
+      "value": 25,
+      "description": "A pouch filled with shimmering coins.",
+      "quantity": 3
+    },
+    {
+      "id": "treasure-003",
+      "name": "Iron Shield",
+      "type": "treasure",
+      "effect": "buff",
+      "stat": "defense",
+      "value": 1,
+      "description": "A sturdy shield that blocks attacks.",
+      "quantity": 2
+    },
+    {
+      "id": "treasure-004",
+      "name": "Orcish Blade",
+      "type": "treasure",
+      "effect": "buff",
+      "stat": "attack",
+      "value": 2,
+      "description": "A crude but effective weapon.",
+      "quantity": 2
+    },
+    {
+      "id": "event-001",
+      "name": "Trapped Chest",
+      "type": "event",
+      "effect": "trap",
+      "damage": 5,
+      "description": "A chest that snaps shut when opened.",
+      "quantity": 2
+    },
+    {
+      "id": "event-002",
+      "name": "Friendly Spirit",
+      "type": "event",
+      "effect": "heal",
+      "value": 10,
+      "description": "A ghostly figure offers aid.",
+      "quantity": 1
+    }
+  ]
+}

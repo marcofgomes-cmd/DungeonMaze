@@ -37,7 +37,10 @@ Tiles have directional exits (north, south, west, east) that must connect proper
 │   └── game.js             # All game logic
 ├── data/
 │   ├── room-cards.json     # Room tile definitions (excludes entrance)
-│   ├── quests.json         # Quest definitions with encounter decks
+│   ├── quest-manifest.json # Lists all available quest files
+│   ├── quests/
+│   │   ├── quest-1.json    # Quest: Den of the Orcish Raiders
+│   │   └── quest-2.json    # Quest: Tomb of the Lich King
 │   └── heroes.json         # Hero class stats
 └── AGENTS.md
 ```
