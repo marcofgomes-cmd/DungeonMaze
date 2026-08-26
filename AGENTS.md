@@ -37,7 +37,7 @@ Tiles have directional exits (north, south, west, east) that must connect proper
 │   └── game.js             # All game logic
 ├── data/
 │   ├── room-cards.json     # Room tile definitions (excludes entrance)
-│   ├── encounter-cards.json # Monsters, treasures, events
+│   ├── quests.json         # Quest definitions with encounter decks
 │   └── heroes.json         # Hero class stats
 └── AGENTS.md
 ```
