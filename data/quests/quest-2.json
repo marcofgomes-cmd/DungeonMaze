@@ -13,7 +13,7 @@
       "defense": 1,
       "gold": 8,
       "description": "Animated bones clatter towards you.",
-      "quantity": 4
+      "quantity": 5
     },
     {
       "id": "zombie-001",
@@ -24,7 +24,7 @@
       "defense": 1,
       "gold": 12,
       "description": "A shambling corpse with empty eyes.",
-      "quantity": 3
+      "quantity": 4
     },
     {
       "id": "wraith-001",
@@ -66,7 +66,7 @@
       "effect": "heal",
       "value": 10,
       "description": "A red liquid that restores vitality.",
-      "quantity": 3
+      "quantity": 4
     },
     {
       "id": "treasure-002",
@@ -75,7 +75,7 @@
       "effect": "heal",
       "value": 15,
       "description": "A crystal pulsing with magical energy.",
-      "quantity": 2
+      "quantity": 3
     },
     {
       "id": "treasure-003",
@@ -95,7 +95,7 @@
       "stat": "defense",
       "value": 2,
       "description": "A fragment of dark power that protects the bearer.",
-      "quantity": 1
+      "quantity": 2
     },
     {
       "id": "event-001",
@@ -104,7 +104,7 @@
       "effect": "trap",
       "damage": 8,
       "description": "Rocks fall from above!",
-      "quantity": 2
+      "quantity": 3
     },
     {
       "id": "event-002",
@@ -113,7 +113,7 @@
       "effect": "trap",
       "damage": 4,
       "description": "Dark energy courses through your veins.",
-      "quantity": 2
+      "quantity": 3
     },
     {
       "id": "event-003",
