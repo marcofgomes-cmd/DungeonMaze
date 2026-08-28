@@ -98,7 +98,8 @@ export function renderTileContent(tile, row, col) {
   html += '</div>';
 
   if (tile.image) {
-    html += `<img class="tile-image" src="${tile.image}" alt="${tile.name}" onerror="this.style.display='none'">`;
+    const rotation = tile.rotation || 0;
+    html += `<img class="tile-image" src="${tile.image}" alt="${tile.name}" style="transform: rotate(${rotation}deg)" onerror="this.style.display='none'">`;
   } else {
     html += `<div class="tile-center">${tile.name}</div>`;
   }
@@ -229,7 +230,7 @@ export function renderPreview() {
   if (rotated.east) html += '<div class="exit east"></div>';
   html += '</div>';
   if (state.currentTile.image) {
-    html += `<img class="tile-image" src="${state.currentTile.image}" alt="${state.currentTile.name}">`;
+    html += `<img class="tile-image" src="${state.currentTile.image}" alt="${state.currentTile.name}" style="transform: rotate(${state.currentRotation}deg)">`;
   } else {
     html += `<div class="tile-center">${state.currentTile.name}</div>`;
   }
