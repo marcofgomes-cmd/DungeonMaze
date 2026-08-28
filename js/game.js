@@ -63,7 +63,7 @@ async function startGame(encounters) {
   const rooms = await loadRoomCards();
   const heroList = await loadHeroes();
 
-  const roomsWithoutEntrance = rooms.filter(c => c.id !== 'tile-entrance');
+  const roomsWithoutEntrance = rooms.filter(c => c.type !== 'entrance');
   state.roomDeck = shuffle(expandDeckByQuantity(roomsWithoutEntrance));
   state.encounterDeck = shuffle(expandDeckByQuantity(encounters));
 
@@ -79,8 +79,9 @@ async function startGame(encounters) {
 
   state.dungeon = new Map();
   const entrance = {
-    id: 'tile-entrance', name: 'Entrance', type: 'entrance',
+    name: 'Entrance', type: 'entrance',
     north: true, south: true, west: true, east: true,
+    image: 'images/room-cards/entrance.png',
     explored: true, encounter: null
   };
   state.dungeon.set(posKey(0, 0), entrance);

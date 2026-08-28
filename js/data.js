@@ -5,12 +5,12 @@
 export const PLAYER_COLORS = ['#e94560', '#53d769', '#ffd700', '#00a8ff'];
 
 export const fallbackRoomCards = [
-  { id: 'tile-entrance', name: 'Entrance', type: 'entrance', north: true, south: true, west: true, east: true, exit: false, quantity: 1 },
-  { id: 'tile-corridor', name: 'Corridor', type: 'corridor', north: true, south: true, west: false, east: false, exit: false, quantity: 8 },
-  { id: 'tile-dead-end', name: 'Dead End', type: 'dead-end', north: true, south: false, west: false, east: false, exit: false, quantity: 6 },
-  { id: 'tile-corner', name: 'Corner', type: 'corner', north: true, south: false, west: false, east: true, exit: false, quantity: 8 },
-  { id: 'tile-t-junction', name: 'T-Junction', type: 't-junction', north: true, south: false, west: true, east: true, exit: false, quantity: 6 },
-  { id: 'tile-cross', name: 'Crossroads', type: 'cross', north: true, south: true, west: true, east: true, exit: false, quantity: 4 }
+  { name: 'Entrance', type: 'entrance', north: true, south: true, west: true, east: true, quantity: 1 },
+  { name: 'Corridor', type: 'corridor', north: true, south: true, west: false, east: false, quantity: 8 },
+  { name: 'Dead End', type: 'dead-end', north: true, south: false, west: false, east: false, quantity: 6 },
+  { name: 'Corner', type: 'corner', north: true, south: false, west: false, east: true, quantity: 8 },
+  { name: 'T-Junction', type: 't-junction', north: true, south: false, west: true, east: true, quantity: 6 },
+  { name: 'Crossroads', type: 'cross', north: true, south: true, west: true, east: true, quantity: 4 }
 ];
 
 export const fallbackHeroes = [

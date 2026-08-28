@@ -97,7 +97,11 @@ export function renderTileContent(tile, row, col) {
   if (tile.east) html += '<div class="exit east"></div>';
   html += '</div>';
 
-  html += `<div class="tile-center">${tile.name}</div>`;
+  if (tile.image) {
+    html += `<img class="tile-image" src="${tile.image}" alt="${tile.name}" onerror="this.style.display='none'">`;
+  } else {
+    html += `<div class="tile-center">${tile.name}</div>`;
+  }
 
   if (tile.encounter) {
     const icon = tile.encounter.type === 'monster' ? '⚔' : tile.encounter.type === 'event' ? '⚠' : '★';
@@ -224,7 +228,11 @@ export function renderPreview() {
   if (rotated.west) html += '<div class="exit west"></div>';
   if (rotated.east) html += '<div class="exit east"></div>';
   html += '</div>';
-  html += `<div class="tile-center">${state.currentTile.name}</div>`;
+  if (state.currentTile.image) {
+    html += `<img class="tile-image" src="${state.currentTile.image}" alt="${state.currentTile.name}">`;
+  } else {
+    html += `<div class="tile-center">${state.currentTile.name}</div>`;
+  }
   html += `<div class="preview-info">${getRotationLabel(state.currentRotation)}</div>`;
   html += '</div>';
 
