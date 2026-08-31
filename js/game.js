@@ -269,9 +269,11 @@ function onFight() {
 function onRun() {
   if (state.phase !== 'encounter-choice') return;
   const player = state.players[state.currentPlayer];
+  const currentTile = state.dungeon.get(posKey(player.position.row, player.position.col));
   const dirs = ['north', 'south', 'west', 'east'];
   const targets = [];
   for (const dir of dirs) {
+    if (!currentTile[dir]) continue;
     const delta = getDirDelta(dir);
     const row = player.position.row + delta.row;
     const col = player.position.col + delta.col;
@@ -281,7 +283,7 @@ function onRun() {
     }
   }
   if (targets.length === 0) {
-    log('No known adjacent room to flee to!', 'monster');
+    log('No known room to flee to through an exit!', 'monster');
     return;
   }
   state.runTargets = targets;
