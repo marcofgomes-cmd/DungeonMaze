@@ -103,9 +103,22 @@ function nextTurn() {
   state.moveTarget = null;
   state.runTargets = [];
   state.fleeOrigin = null;
-  state.phase = 'move';
   state.currentPlayer = (state.currentPlayer + 1) % state.players.length;
   if (state.currentPlayer === 0) state.turn++;
+  checkStartingEncounter();
+}
+
+function checkStartingEncounter() {
+  const player = state.players[state.currentPlayer];
+  const tile = state.dungeon.get(posKey(player.position.row, player.position.col));
+  if (tile && tile.encounter && tile.encounter.type === 'monster') {
+    state.currentEncounter = tile.encounter;
+    log(`Encounter: ${tile.encounter.name}`, 'monster');
+    state.phase = 'encounter-choice';
+    render();
+    return;
+  }
+  state.phase = 'move';
 }
 
 // --- EVENT HANDLERS (exposed to board.js via window) ---
