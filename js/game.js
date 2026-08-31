@@ -101,6 +101,8 @@ function nextTurn() {
   state.currentTile = null;
   state.currentRotation = 0;
   state.moveTarget = null;
+  state.runTargets = [];
+  state.fleeOrigin = null;
   state.phase = 'move';
   state.currentPlayer = (state.currentPlayer + 1) % state.players.length;
   if (state.currentPlayer === 0) state.turn++;
@@ -136,7 +138,7 @@ window.onTileClick = function (row, col) {
   if (tile.encounter) {
     state.currentEncounter = tile.encounter;
     log(`Encounter: ${tile.encounter.name}`, tile.encounter.type === 'monster' ? 'monster' : 'treasure');
-    state.phase = 'resolve-encounter';
+    state.phase = tile.encounter.type === 'monster' && tile.encounter.wasFought ? 'encounter-choice' : 'resolve-encounter';
   } else {
     nextTurn();
   }
@@ -200,7 +202,7 @@ function processDrawEncounter() {
 
   state.currentEncounter = enc;
   log(`Encounter: ${enc.name}`, enc.type === 'monster' ? 'monster' : 'treasure');
-  state.phase = 'resolve-encounter';
+  state.phase = enc.type === 'monster' && enc.wasFought ? 'encounter-choice' : 'resolve-encounter';
   render();
 }
 
@@ -233,17 +235,79 @@ function onRotateTile() {
 function onResolve() {
   const result = resolveEncounter();
   log(result.message, result.type);
-  if (result.resolved) {
-    if (result.questComplete) {
-      completeQuest();
-    } else {
-      nextTurn();
-    }
+  state.combatResult = null;
+  if (result.resolved && result.questComplete) {
+    completeQuest();
   } else {
-    state.combatResult = null;
+    nextTurn();
   }
   render();
 }
+
+function onFight() {
+  if (state.phase !== 'encounter-choice') return;
+  state.runTargets = [];
+  state.fleeOrigin = null;
+  state.phase = 'resolve-encounter';
+  log(`You choose to fight ${state.currentEncounter.name}!`, 'hero');
+  render();
+}
+
+function onRun() {
+  if (state.phase !== 'encounter-choice') return;
+  const player = state.players[state.currentPlayer];
+  const dirs = ['north', 'south', 'west', 'east'];
+  const targets = [];
+  for (const dir of dirs) {
+    const delta = getDirDelta(dir);
+    const row = player.position.row + delta.row;
+    const col = player.position.col + delta.col;
+    const tile = state.dungeon.get(posKey(row, col));
+    if (tile) {
+      targets.push({ row, col });
+    }
+  }
+  if (targets.length === 0) {
+    log('No known adjacent room to flee to!', 'monster');
+    return;
+  }
+  state.runTargets = targets;
+  state.fleeOrigin = { row: player.position.row, col: player.position.col };
+  state.phase = 'run-selection';
+  log('Choose a known room to flee to.', 'hero');
+  render();
+}
+
+window.onRunSelect = function (row, col) {
+  if (state.phase !== 'run-selection') return;
+  const player = state.players[state.currentPlayer];
+  const valid = state.runTargets.find(t => t.row === row && t.col === col);
+  if (!valid) return;
+
+  const tile = state.dungeon.get(posKey(row, col));
+  movePlayer(row, col);
+  log(`You flee to ${tile.name}.`, 'hero');
+
+  player.currentHp -= 1;
+  if (player.currentHp <= 0) {
+    player.currentHp = player.hp;
+    player.position = { row: 0, col: 0 };
+    log('You collapsed from the escape! Teleported to entrance.', 'monster');
+  }
+
+  state.runTargets = [];
+  state.fleeOrigin = null;
+  state.moveTarget = null;
+
+  if (player.currentHp > 0 && !(player.position.row === 0 && player.position.col === 0) && tile.encounter) {
+    state.currentEncounter = tile.encounter;
+    log(`Encounter: ${tile.encounter.name}`, tile.encounter.type === 'monster' ? 'monster' : 'treasure');
+    state.phase = tile.encounter.type === 'monster' && tile.encounter.wasFought ? 'encounter-choice' : 'resolve-encounter';
+  } else {
+    nextTurn();
+  }
+  render();
+};
 
 function completeQuest() {
   const goldReward = state.currentQuest.reward || 0;
@@ -269,6 +333,8 @@ async function init() {
 
     document.getElementById('roll-dice').addEventListener('click', onRollDice);
     document.getElementById('resolve-btn').addEventListener('click', onResolve);
+    document.getElementById('fight-btn').addEventListener('click', onFight);
+    document.getElementById('run-btn').addEventListener('click', onRun);
     document.getElementById('rotate-btn').addEventListener('click', onRotateTile);
   } catch (error) {
     console.error('Failed to initialize:', error);

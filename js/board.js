@@ -169,6 +169,10 @@ export function renderBoard() {
     renderMovementOptions();
   }
 
+  if (state.phase === 'run-selection') {
+    renderRunOptions();
+  }
+
   const roomDeckEl = document.getElementById('room-deck');
   const encDeckEl = document.getElementById('encounter-deck');
   roomDeckEl.textContent = `Room Deck (${state.roomDeck.length})`;
@@ -201,6 +205,32 @@ export function renderMovementOptions() {
     div.addEventListener('click', (e) => {
       e.stopPropagation();
       if (typeof window.onExploreTile === 'function') window.onExploreTile(t.row, t.col, t.fromDir);
+    });
+    grid.appendChild(div);
+  }
+}
+
+export function renderRunOptions() {
+  document.querySelectorAll('.run-option').forEach(el => el.remove());
+
+  const grid = document.getElementById('dungeon-grid');
+  const keys = Array.from(state.dungeon.keys()).map(parseKey);
+  if (keys.length === 0) return;
+  const minRow = Math.min(...keys.map(k => k.row)) - 1;
+  const minCol = Math.min(...keys.map(k => k.col)) - 1;
+
+  for (const t of state.runTargets) {
+    const div = document.createElement('div');
+    div.className = 'run-option';
+    div.style.position = 'absolute';
+    div.style.left = `${(t.col - minCol) * 104}px`;
+    div.style.top = `${(t.row - minRow) * 104}px`;
+    div.style.width = '100px';
+    div.style.height = '100px';
+    div.innerHTML = '<div class="run-marker">&#8618;</div>';
+    div.addEventListener('click', (e) => {
+      e.stopPropagation();
+      if (typeof window.onRunSelect === 'function') window.onRunSelect(t.row, t.col);
     });
     grid.appendChild(div);
   }
@@ -291,6 +321,15 @@ export function renderEncounter() {
   const rollBtn = document.getElementById('roll-dice');
   const diceResult = document.getElementById('dice-result');
   const resolveBtn = document.getElementById('resolve-btn');
+  const fightBtn = document.getElementById('fight-btn');
+  const runBtn = document.getElementById('run-btn');
+
+  const resetCombatButtons = () => {
+    rollBtn.classList.add('hidden');
+    resolveBtn.classList.add('hidden');
+    diceResult.classList.add('hidden');
+    diceResult.innerHTML = '';
+  };
 
   if (state.currentEncounter) {
     const enc = state.currentEncounter;
@@ -305,7 +344,13 @@ export function renderEncounter() {
       <div class="stats">${hpDisplay}</div>
     `;
 
-    if (state.phase === 'resolve-encounter') {
+    if (state.phase === 'encounter-choice') {
+      fightBtn.classList.remove('hidden');
+      runBtn.classList.remove('hidden');
+      resetCombatButtons();
+    } else if (state.phase === 'resolve-encounter') {
+      fightBtn.classList.add('hidden');
+      runBtn.classList.add('hidden');
       if (enc.type === 'monster') {
         if (!state.combatResult) {
           rollBtn.classList.remove('hidden');
@@ -328,17 +373,15 @@ export function renderEncounter() {
         diceResult.innerHTML = '';
       }
     } else {
-      rollBtn.classList.add('hidden');
-      resolveBtn.classList.add('hidden');
-      diceResult.classList.add('hidden');
-      diceResult.innerHTML = '';
+      fightBtn.classList.add('hidden');
+      runBtn.classList.add('hidden');
+      resetCombatButtons();
     }
   } else {
     card.innerHTML = '<p>No current encounter</p>';
-    rollBtn.classList.add('hidden');
-    resolveBtn.classList.add('hidden');
-    diceResult.classList.add('hidden');
-    diceResult.innerHTML = '';
+    resetCombatButtons();
+    fightBtn.classList.add('hidden');
+    runBtn.classList.add('hidden');
   }
 
   document.getElementById('turn-display').textContent = `Turn: ${state.turn}`;

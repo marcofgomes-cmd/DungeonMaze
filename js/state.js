@@ -15,6 +15,8 @@ export const state = {
   combatResult: null,
   phase: 'move',
   moveTarget: null,
+  runTargets: [],
+  fleeOrigin: null,
   currentQuest: null,
   questIndex: 0,
   quests: []
@@ -33,5 +35,7 @@ export function resetState() {
   state.combatResult = null;
   state.phase = 'move';
   state.moveTarget = null;
+  state.runTargets = [];
+  state.fleeOrigin = null;
   state.currentQuest = null;
 }

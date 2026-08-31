@@ -50,11 +50,12 @@ export function resolveEncounter() {
     if (player.currentHp <= 0) {
       player.currentHp = player.hp;
       player.position = { row: 0, col: 0 };
-      if (tile) tile.encounter = null;
-      messages.push(`Defeated! Teleported to entrance.`);
+      monster.wasFought = true;
+      messages.push(`Defeated! The ${monster.name} remains in the room. Teleported to entrance.`);
       return { message: messages.join(' | '), type: 'monster', resolved: true };
     }
 
+    monster.wasFought = true;
     messages.push(`You: ${player.currentHp}/${player.hp} HP | ${monster.name}: ${monster.currentHp}/${monster.hp} HP`);
     return { message: messages.join(' | '), type: 'monster', resolved: false };
   } else if (state.currentEncounter.type === 'treasure') {
