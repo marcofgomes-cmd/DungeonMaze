@@ -5,6 +5,7 @@
 import { state } from './state.js';
 import { posKey, parseKey, getDirDelta, getOppositeDir, rotateExits, getRotationLabel } from './utils.js';
 import { PLAYER_COLORS } from './data.js';
+import { abilityDescription } from './encounters.js';
 
 export function getAdjacentEmptyTiles(row, col) {
   const dirs = ['north', 'south', 'west', 'east'];
@@ -307,10 +308,13 @@ export function renderHeroes() {
   state.players.forEach((player, index) => {
     const div = document.createElement('div');
     div.className = 'hero-card' + (index === state.currentPlayer ? ' active' : '');
+    const ability = (player.abilities || [])[0];
+    const abilityText = ability ? `[${ability.roll}] ${ability.name}: ${abilityDescription(ability)}` : '';
     div.innerHTML = `
       <div class="name" style="color:${PLAYER_COLORS[index]}">${player.name}</div>
       <div class="stats">HP: ${player.currentHp}/${player.hp} | ATK: ${player.attack} | DEF: ${player.defense}</div>
       <div class="stats">Gold: ${player.gold}</div>
+      ${abilityText ? `<div class="stats ability">${abilityText}</div>` : ''}
     `;
     container.appendChild(div);
   });

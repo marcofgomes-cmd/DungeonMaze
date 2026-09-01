@@ -16,6 +16,34 @@ export function rollCombatDice() {
   return state.combatResult;
 }
 
+export function abilityDescription(ability) {
+  switch (ability.effect) {
+    case 'heal': return `Heal ${ability.value} HP`;
+    case 'bonusDamage': return `Deal +${ability.value} bonus damage`;
+    case 'reduceDamage': return `Reduce damage taken by ${ability.value}`;
+    case 'negateDamage': return 'Take no damage this turn';
+    default: return ability.effect;
+  }
+}
+
+export function applyAbility(ability, player, heroDamage, monsterDamage) {
+  switch (ability.effect) {
+    case 'heal': {
+      const healed = Math.min(player.hp - player.currentHp, ability.value || 0);
+      player.currentHp += healed;
+      return { heroDamage, monsterDamage, description: `Heal ${healed} HP` };
+    }
+    case 'bonusDamage':
+      return { heroDamage: heroDamage + (ability.value || 0), monsterDamage, description: `Deal +${ability.value} bonus damage` };
+    case 'reduceDamage':
+      return { heroDamage, monsterDamage: Math.max(0, monsterDamage - (ability.value || 0)), description: `Reduce damage taken by ${ability.value}` };
+    case 'negateDamage':
+      return { heroDamage, monsterDamage: 0, description: 'Take no damage this turn' };
+    default:
+      return { heroDamage, monsterDamage, description: ability.effect };
+  }
+}
+
 export function resolveEncounter() {
   if (!state.currentEncounter) return { message: 'No encounter.', type: 'hero', resolved: true };
 
@@ -27,13 +55,21 @@ export function resolveEncounter() {
     const monster = state.currentEncounter;
     const combat = state.combatResult || rollCombatDice();
 
-    const heroDamage = Math.max(0, combat.heroRoll + player.attack - monster.defense);
-    const monsterDamage = Math.max(0, combat.monsterRoll + monster.attack - player.defense);
+    let heroDamage = Math.max(0, combat.heroRoll + player.attack - monster.defense);
+    let monsterDamage = Math.max(0, combat.monsterRoll + monster.attack - player.defense);
+
+    const messages = [];
+    const ability = (player.abilities || []).find(a => a.roll === combat.heroRoll);
+    if (ability) {
+      const result = applyAbility(ability, player, heroDamage, monsterDamage);
+      heroDamage = result.heroDamage;
+      monsterDamage = result.monsterDamage;
+      messages.push(`[${ability.roll}] ${ability.name}: ${result.description}`);
+    }
 
     monster.currentHp = (monster.currentHp || monster.hp) - heroDamage;
     player.currentHp -= monsterDamage;
 
-    const messages = [];
     messages.push(`You rolled ${combat.heroRoll} + ${player.attack} ATK - ${monster.defense} DEF = ${heroDamage} damage`);
     messages.push(`${monster.name} rolled ${combat.monsterRoll} + ${monster.attack} ATK - ${player.defense} DEF = ${monsterDamage} damage`);
 

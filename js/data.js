@@ -14,10 +14,10 @@ export const fallbackRoomCards = [
 ];
 
 export const fallbackHeroes = [
-  { class: 'warrior', name: 'Warrior', hp: 30, attack: 8, defense: 5, magic: 2 },
-  { class: 'wizard', name: 'Wizard', hp: 20, attack: 4, defense: 3, magic: 10 },
-  { class: 'rogue', name: 'Rogue', hp: 25, attack: 7, defense: 3, magic: 3 },
-  { class: 'cleric', name: 'Cleric', hp: 28, attack: 5, defense: 4, magic: 7 }
+  { class: 'warrior', name: 'Warrior', hp: 12, attack: 5, defense: 4, abilities: [{ roll: 3, name: 'Iron Guard', effect: 'reduceDamage', value: 3 }] },
+  { class: 'cleric', name: 'Cleric', hp: 10, attack: 4, defense: 3, abilities: [{ roll: 1, name: 'Healing Strike', effect: 'heal', value: 3 }] },
+  { class: 'rogue', name: 'Rogue', hp: 8, attack: 6, defense: 2, abilities: [{ roll: 6, name: 'Dodge', effect: 'negateDamage' }] },
+  { class: 'wizard', name: 'Wizard', hp: 6, attack: 5, defense: 1, abilities: [{ roll: 4, name: 'Fireball', effect: 'bonusDamage', value: 4 }] }
 ];
 
 export async function loadRoomCards() {

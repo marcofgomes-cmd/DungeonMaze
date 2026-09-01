@@ -162,6 +162,10 @@ section h2 {
   color: #a0a0a0;
 }
 
+.hero-card .stats.ability {
+  color: #ffd700;
+}
+
 #deck-panel {
   flex: 1;
 }
