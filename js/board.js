@@ -213,6 +213,7 @@ export function renderBoard() {
 
 export function renderMovementOptions() {
   document.querySelectorAll('.movement-option').forEach(el => el.remove());
+  document.querySelectorAll('.tile.can-move').forEach(el => el.classList.remove('can-move'));
 
   const player = state.players[state.currentPlayer];
   const emptyTiles = getAdjacentEmptyTiles(player.position.row, player.position.col);
@@ -222,6 +223,19 @@ export function renderMovementOptions() {
   if (keys.length === 0) return;
   const minRow = Math.min(...keys.map(k => k.row)) - 1;
   const minCol = Math.min(...keys.map(k => k.col)) - 1;
+
+  const currentTile = state.dungeon.get(posKey(player.position.row, player.position.col));
+  const dirs = ['north', 'south', 'west', 'east'];
+  for (const dir of dirs) {
+    if (!currentTile[dir]) continue;
+    const delta = getDirDelta(dir);
+    const row = player.position.row + delta.row;
+    const col = player.position.col + delta.col;
+    if (state.dungeon.has(posKey(row, col))) {
+      const tileEl = grid.querySelector(`.tile.explored[data-row="${row}"][data-col="${col}"]`);
+      if (tileEl) tileEl.classList.add('can-move');
+    }
+  }
 
   for (const t of emptyTiles) {
     const div = document.createElement('div');
