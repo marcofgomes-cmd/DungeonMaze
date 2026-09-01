@@ -113,7 +113,8 @@ export function renderTileContent(tile, row, col) {
   if (playersHere.length > 0) {
     html += '<div class="players">';
     for (const p of playersHere) {
-      html += `<div class="player-icon" style="background:${PLAYER_COLORS[p.id]}">${p.name[0]}</div>`;
+      const active = p.id === state.currentPlayer ? ' active' : '';
+      html += `<div class="player-icon${active}" style="background:${PLAYER_COLORS[p.id]}">${p.name[0]}</div>`;
     }
     html += '</div>';
   }
@@ -150,6 +151,10 @@ export function renderBoard() {
       if (tile) {
         div.classList.add('explored');
         if (tile.type === 'entrance') div.classList.add('entrance');
+        const activePlayer = state.players[state.currentPlayer];
+        if (activePlayer && activePlayer.position.row === r && activePlayer.position.col === c) {
+          div.classList.add('active-hero');
+        }
         div.innerHTML = renderTileContent(tile, r, c);
         div.addEventListener('click', () => {
           if (typeof window.onTileClick === 'function') window.onTileClick(r, c);
@@ -238,17 +243,18 @@ export function renderRunOptions() {
 }
 
 export function renderPreview() {
+  const previewModal = document.getElementById('preview-modal');
   const preview = document.getElementById('room-preview');
   const rotateBtn = document.getElementById('rotate-btn');
 
   if (!state.currentTile || state.phase !== 'place-tile') {
-    preview.classList.add('hidden');
+    previewModal.classList.add('hidden');
     rotateBtn.classList.add('hidden');
     preview.innerHTML = '';
     return;
   }
 
-  preview.classList.remove('hidden');
+  previewModal.classList.remove('hidden');
   rotateBtn.classList.remove('hidden');
 
   const rotated = rotateExits(state.currentTile, state.currentRotation);
@@ -308,19 +314,46 @@ export function renderHeroes() {
   state.players.forEach((player, index) => {
     const div = document.createElement('div');
     div.className = 'hero-card' + (index === state.currentPlayer ? ' active' : '');
-    const ability = (player.abilities || [])[0];
-    const abilityText = ability ? `[${ability.roll}] ${ability.name}: ${abilityDescription(ability)}` : '';
+    const hpPct = player.hp > 0 ? Math.round(player.currentHp / player.hp * 100) : 0;
+    const hpColor = hpPct > 50 ? '#53d769' : hpPct > 25 ? '#ffd700' : '#e94560';
     div.innerHTML = `
       <div class="name" style="color:${PLAYER_COLORS[index]}">${player.name}</div>
-      <div class="stats">HP: ${player.currentHp}/${player.hp} | ATK: ${player.attack} | DEF: ${player.defense}</div>
-      <div class="stats">Gold: ${player.gold}</div>
-      ${abilityText ? `<div class="stats ability">${abilityText}</div>` : ''}
+      <div class="hp-bar"><div class="hp-fill" style="width:${hpPct}%;background:${hpColor}"></div></div>
+      <div class="stats"><span>HP</span><span>${player.currentHp}/${player.hp}</span></div>
+      <div class="stats"><span>Gold</span><span>${player.gold}</span></div>
     `;
+    div.addEventListener('click', () => openHeroDetailModal(index));
     container.appendChild(div);
   });
 }
 
+export function openHeroDetailModal(index) {
+  const player = state.players[index];
+  if (!player) return;
+  const body = document.getElementById('hero-modal-body');
+  const abilities = (player.abilities || []).map(a => `
+    <div class="ability-entry"><strong>[${a.roll}] ${a.name}</strong>: ${abilityDescription(a)}</div>
+  `).join('');
+  body.innerHTML = `
+    <div class="hero-detail-name" style="color:${PLAYER_COLORS[index]}">${player.name}</div>
+    <div class="hero-detail-grid">
+      <div class="hero-detail-row"><span class="label">HP</span><span class="value">${player.currentHp}/${player.hp}</span></div>
+      <div class="hero-detail-row"><span class="label">Gold</span><span class="value">${player.gold}</span></div>
+      <div class="hero-detail-row"><span class="label">Attack</span><span class="value">${player.attack}</span></div>
+      <div class="hero-detail-row"><span class="label">Defense</span><span class="value">${player.defense}</span></div>
+      <div class="hero-detail-row"><span class="label">Position</span><span class="value">(${player.position.row}, ${player.position.col})</span></div>
+    </div>
+    ${abilities ? `<div class="hero-detail-abilities"><div class="label">Abilities</div>${abilities}</div>` : ''}
+  `;
+  document.getElementById('hero-modal').classList.remove('hidden');
+}
+
+export function closeHeroDetailModal() {
+  document.getElementById('hero-modal').classList.add('hidden');
+}
+
 export function renderEncounter() {
+  const modal = document.getElementById('encounter-modal');
   const card = document.getElementById('encounter-card');
   const rollBtn = document.getElementById('roll-dice');
   const diceResult = document.getElementById('dice-result');
@@ -335,7 +368,8 @@ export function renderEncounter() {
     diceResult.innerHTML = '';
   };
 
-  if (state.currentEncounter) {
+  if (state.currentEncounter && (state.phase === 'resolve-encounter' || state.phase === 'encounter-choice')) {
+    modal.classList.remove('hidden');
     const enc = state.currentEncounter;
     const player = state.players[state.currentPlayer];
     const hpDisplay = enc.type === 'monster'
@@ -352,7 +386,7 @@ export function renderEncounter() {
       fightBtn.classList.remove('hidden');
       runBtn.classList.remove('hidden');
       resetCombatButtons();
-    } else if (state.phase === 'resolve-encounter') {
+    } else {
       fightBtn.classList.add('hidden');
       runBtn.classList.add('hidden');
       if (enc.type === 'monster') {
@@ -376,12 +410,9 @@ export function renderEncounter() {
         diceResult.classList.add('hidden');
         diceResult.innerHTML = '';
       }
-    } else {
-      fightBtn.classList.add('hidden');
-      runBtn.classList.add('hidden');
-      resetCombatButtons();
     }
   } else {
+    modal.classList.add('hidden');
     card.innerHTML = '<p>No current encounter</p>';
     resetCombatButtons();
     fightBtn.classList.add('hidden');

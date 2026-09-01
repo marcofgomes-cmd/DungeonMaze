@@ -41,26 +41,11 @@
 
       <div id="row2">
         <section id="log-panel">
-          <h2>Game Log</h2>
-          <div id="game-log"></div>
-        </section>
-
-        <section id="preview-panel">
-          <h2>Room Preview</h2>
-          <div id="room-preview" class="hidden"></div>
-          <button id="rotate-btn" class="hidden">Rotate</button>
-        </section>
-
-        <section id="encounter-panel">
-          <h2>Encounter</h2>
-          <div id="encounter-card"></div>
-          <div id="combat-area">
-            <button id="fight-btn" class="hidden">Fight</button>
-            <button id="run-btn" class="hidden">Run</button>
-            <button id="roll-dice" class="hidden">Roll d6</button>
-            <div id="dice-result" class="hidden"></div>
-            <button id="resolve-btn" class="hidden">Resolve</button>
+          <div id="log-header">
+            <h2>Game Log</h2>
+            <button id="log-toggle" title="Toggle log">−</button>
           </div>
+          <div id="game-log"></div>
         </section>
       </div>
 
@@ -69,6 +54,39 @@
           <h2>Dungeon</h2>
           <div id="dungeon-grid"></div>
         </section>
+      </div>
+    </div>
+  </div>
+
+  <!-- Hero detail modal -->
+  <div id="hero-modal" class="modal-backdrop hidden">
+    <div class="modal">
+      <div class="modal-header">
+        <h2>Hero Details</h2>
+        <button id="hero-modal-close" class="modal-close">×</button>
+      </div>
+      <div id="hero-modal-body"></div>
+    </div>
+  </div>
+
+  <!-- Room preview floating panel -->
+  <div id="preview-modal" class="preview-modal hidden">
+    <h2>Room Preview</h2>
+    <div id="room-preview"></div>
+    <button id="rotate-btn" class="hidden">Rotate</button>
+  </div>
+
+  <!-- Encounter modal -->
+  <div id="encounter-modal" class="modal-backdrop hidden">
+    <div class="modal">
+      <div class="modal-header"><h2>Encounter</h2></div>
+      <div id="encounter-card"></div>
+      <div id="combat-area">
+        <button id="fight-btn" class="hidden">Fight</button>
+        <button id="run-btn" class="hidden">Run</button>
+        <button id="roll-dice" class="hidden">Roll d6</button>
+        <div id="dice-result" class="hidden"></div>
+        <button id="resolve-btn" class="hidden">Resolve</button>
       </div>
     </div>
   </div>

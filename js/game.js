@@ -8,7 +8,7 @@ import { loadRoomCards, loadHeroes, loadQuests } from './data.js';
 import { rollCombatDice, resolveEncounter } from './encounters.js';
 import {
   canPlaceInDir, findValidRotation, placeTile, movePlayer,
-  drawTile, drawEncounterCard, render
+  drawTile, drawEncounterCard, render, closeHeroDetailModal
 } from './board.js';
 
 // --- LOGGING ---
@@ -351,6 +351,20 @@ async function init() {
     document.getElementById('fight-btn').addEventListener('click', onFight);
     document.getElementById('run-btn').addEventListener('click', onRun);
     document.getElementById('rotate-btn').addEventListener('click', onRotateTile);
+
+    document.getElementById('hero-modal-close').addEventListener('click', closeHeroDetailModal);
+    document.getElementById('hero-modal').addEventListener('click', (e) => {
+      if (e.target === e.currentTarget) closeHeroDetailModal();
+    });
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') closeHeroDetailModal();
+    });
+    document.getElementById('log-toggle').addEventListener('click', () => {
+      const panel = document.getElementById('log-panel');
+      const toggle = document.getElementById('log-toggle');
+      panel.classList.toggle('collapsed');
+      toggle.textContent = panel.classList.contains('collapsed') ? '+' : '−';
+    });
   } catch (error) {
     console.error('Failed to initialize:', error);
   }

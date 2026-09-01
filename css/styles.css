@@ -100,7 +100,12 @@ header h1 {
   font-size: 1.1rem;
 }
 
-#row1, #row2 {
+#row1 {
+  display: flex;
+  gap: 1rem;
+}
+
+#row2 {
   display: flex;
   gap: 1rem;
 }
@@ -136,34 +141,56 @@ section h2 {
 
 .hero-card {
   background: #0f3460;
-  padding: 0.75rem;
+  padding: 0.6rem;
   border-radius: 6px;
   border-left: 4px solid #e94560;
-  width: 100px;
-  height: 100px;
+  width: 110px;
   box-sizing: border-box;
   display: flex;
   flex-direction: column;
-  justify-content: center;
+  gap: 0.35rem;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.hero-card:hover {
+  background: #1a4a7a;
 }
 
 .hero-card.active {
   border-left-color: #53d769;
   background: #1a4a7a;
+  box-shadow: 0 0 12px rgba(83, 215, 105, 0.5);
 }
 
 .hero-card .name {
   font-weight: bold;
-  margin-bottom: 0.25rem;
+  font-size: 0.95rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .hero-card .stats {
   font-size: 0.8rem;
   color: #a0a0a0;
+  display: flex;
+  justify-content: space-between;
 }
 
-.hero-card .stats.ability {
-  color: #ffd700;
+.hero-card .hp-bar {
+  width: 100%;
+  height: 8px;
+  background: #1a1a2e;
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.hero-card .hp-bar .hp-fill {
+  height: 100%;
+  background: #53d769;
+  border-radius: 4px;
+  transition: width 0.3s, background 0.3s;
 }
 
 #deck-panel {
@@ -201,9 +228,30 @@ section h2 {
 }
 
 #log-panel {
-  flex: 2;
-  max-height: 150px;
+  flex: 1;
+  max-height: 130px;
   overflow-y: auto;
+}
+
+#log-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+#log-toggle {
+  background: transparent;
+  padding: 0.1rem 0.5rem;
+  font-size: 1rem;
+  line-height: 1;
+}
+
+#log-panel.collapsed #game-log {
+  display: none;
+}
+
+#log-panel.collapsed {
+  max-height: 48px;
 }
 
 #game-log {
@@ -231,8 +279,12 @@ section h2 {
   border-left: 3px solid #53d769;
 }
 
-#preview-panel {
-  flex: 1;
+#preview-modal {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  z-index: 90;
+  width: 170px;
 }
 
 #room-preview {
@@ -281,10 +333,6 @@ section h2 {
   flex: 1;
   padding: 0.5rem;
   font-size: 0.85rem;
-}
-
-#encounter-panel {
-  flex: 1;
 }
 
 #encounter-card {
@@ -353,12 +401,115 @@ button:disabled {
   display: none !important;
 }
 
-#dice-result {
-  text-align: center;
-  font-size: 1.5rem;
-  padding: 0.5rem;
+.modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(10, 12, 26, 0.75);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 100;
+}
+
+.modal {
   background: #16213e;
+  border: 2px solid #0f3460;
+  border-radius: 10px;
+  padding: 1.25rem;
+  min-width: 300px;
+  max-width: 420px;
+  width: 90%;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.6);
+}
+
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.75rem;
+}
+
+.modal-header h2 {
+  color: #e94560;
+  font-size: 1.1rem;
+  border-bottom: none;
+  padding-bottom: 0;
+  margin-bottom: 0;
+}
+
+.modal-close {
+  background: transparent;
+  color: #a0a0a0;
+  font-size: 1.4rem;
+  line-height: 1;
+  padding: 0 0.4rem;
+}
+
+.modal-close:hover {
+  background: transparent;
+  color: #e94560;
+}
+
+#hero-modal-body {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.hero-detail-name {
+  font-size: 1.3rem;
+  font-weight: bold;
+}
+
+.hero-detail-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.5rem 1rem;
+  font-size: 0.9rem;
+}
+
+.hero-detail-row {
+  display: flex;
+  justify-content: space-between;
+}
+
+.hero-detail-row .label {
+  color: #a0a0a0;
+}
+
+.hero-detail-row .value {
+  font-weight: bold;
+}
+
+.hero-detail-abilities {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.ability-entry {
+  background: #0f3460;
   border-radius: 6px;
+  padding: 0.5rem 0.75rem;
+  font-size: 0.85rem;
+  border-left: 3px solid #ffd700;
+}
+
+.preview-modal {
+  background: #16213e;
+  border: 2px solid #0f3460;
+  border-radius: 10px;
+  padding: 1rem;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.6);
+}
+
+.preview-modal h2 {
+  color: #e94560;
+  font-size: 1rem;
+  margin-bottom: 0.5rem;
+  border-bottom: 1px solid #0f3460;
+  padding-bottom: 0.4rem;
+  text-align: center;
 }
 
 #board {
@@ -498,6 +649,16 @@ button:disabled {
   font-weight: bold;
   color: white;
   border: 2px solid rgba(0,0,0,0.3);
+}
+
+.player-icon.active {
+  border-color: #ffffff;
+  box-shadow: 0 0 8px 3px rgba(255, 255, 255, 0.6);
+  animation: pulse 1s infinite;
+}
+
+.tile.active-hero {
+  box-shadow: 0 0 0 3px #ffffff, 0 0 14px 5px rgba(255, 255, 255, 0.45);
 }
 
 .placement-option {
