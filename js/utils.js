@@ -50,6 +50,27 @@ export function getRotationLabel(rotation) {
   return labels[rotation % 360] || '0°';
 }
 
+export function getRunData(player) {
+  const runes = player.runes || {};
+  return {
+    strength: runes.strength || 0,
+    defense: runes.defense || 0,
+    fortitude: runes.fortitude || 0
+  };
+}
+
+export function effectiveAttack(player) {
+  return player.attack + getRunData(player).strength;
+}
+
+export function effectiveDefense(player) {
+  return player.defense + getRunData(player).defense;
+}
+
+export function effectiveMaxHp(player) {
+  return player.hp + getRunData(player).fortitude;
+}
+
 export function rotateExits(tile, rotation) {
   const exits = { north: tile.north, south: tile.south, west: tile.west, east: tile.east };
   const dirs = ['north', 'east', 'south', 'west'];

@@ -60,60 +60,55 @@
       "quantity": 1
     },
     {
-      "id": "treasure-001",
+      "id": "trap-001",
+      "name": "Trapped Chest",
+      "type": "trap",
+      "damage": 2,
+      "description": "A chest snaps shut when opened.",
+      "quantity": 4
+    },
+    {
+      "id": "heal-001",
       "name": "Health Potion",
-      "type": "treasure",
-      "effect": "heal",
-      "value": 10,
+      "type": "heal",
+      "value": 5,
       "description": "A red liquid that restores vitality.",
       "quantity": 4
     },
     {
-      "id": "treasure-002",
-      "name": "Gold Coins",
-      "type": "treasure",
-      "effect": "gold",
+      "id": "gold-001",
+      "name": "Gold Chest",
+      "type": "gold",
       "value": 25,
-      "description": "A pouch filled with shimmering coins.",
-      "quantity": 4
+      "description": "A chest overflowing with gold coins.",
+      "quantity": 3
     },
     {
-      "id": "treasure-003",
-      "name": "Iron Shield",
-      "type": "treasure",
-      "effect": "buff",
+      "id": "rune-001",
+      "name": "Rune of Strength",
+      "type": "equipment",
+      "stat": "strength",
+      "value": 1,
+      "description": "A shimmering rune that grants +1 Attack.",
+      "quantity": 2
+    },
+    {
+      "id": "rune-002",
+      "name": "Rune of Defense",
+      "type": "equipment",
       "stat": "defense",
       "value": 1,
-      "description": "A sturdy shield that blocks attacks.",
+      "description": "A stony rune that grants +1 Defense.",
       "quantity": 2
     },
     {
-      "id": "treasure-004",
-      "name": "Orcish Blade",
-      "type": "treasure",
-      "effect": "buff",
-      "stat": "attack",
-      "value": 2,
-      "description": "A crude but effective weapon.",
+      "id": "rune-003",
+      "name": "Rune of Fortitude",
+      "type": "equipment",
+      "stat": "fortitude",
+      "value": 1,
+      "description": "A warm rune that grants +1 maximum HP.",
       "quantity": 2
-    },
-    {
-      "id": "event-001",
-      "name": "Trapped Chest",
-      "type": "event",
-      "effect": "trap",
-      "damage": 5,
-      "description": "A chest that snaps shut when opened.",
-      "quantity": 3
-    },
-    {
-      "id": "event-002",
-      "name": "Friendly Spirit",
-      "type": "event",
-      "effect": "heal",
-      "value": 10,
-      "description": "A ghostly figure offers aid.",
-      "quantity": 3
     }
   ]
 }

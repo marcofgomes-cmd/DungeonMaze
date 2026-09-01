@@ -60,69 +60,55 @@
       "quantity": 1
     },
     {
-      "id": "treasure-001",
+      "id": "trap-001",
+      "name": "Trapped Chest",
+      "type": "trap",
+      "damage": 2,
+      "description": "A chest snaps shut when opened.",
+      "quantity": 4
+    },
+    {
+      "id": "heal-001",
       "name": "Health Potion",
-      "type": "treasure",
-      "effect": "heal",
-      "value": 10,
+      "type": "heal",
+      "value": 5,
       "description": "A red liquid that restores vitality.",
       "quantity": 4
     },
     {
-      "id": "treasure-002",
-      "name": "Mana Crystal",
-      "type": "treasure",
-      "effect": "heal",
-      "value": 15,
-      "description": "A crystal pulsing with magical energy.",
+      "id": "gold-001",
+      "name": "Gold Chest",
+      "type": "gold",
+      "value": 25,
+      "description": "A chest overflowing with gold coins.",
       "quantity": 3
     },
     {
-      "id": "treasure-003",
-      "name": "Ancient Tome",
-      "type": "treasure",
-      "effect": "buff",
-      "stat": "attack",
-      "value": 2,
-      "description": "A book of forgotten combat techniques.",
+      "id": "rune-001",
+      "name": "Rune of Strength",
+      "type": "equipment",
+      "stat": "strength",
+      "value": 1,
+      "description": "A shimmering rune that grants +1 Attack.",
       "quantity": 2
     },
     {
-      "id": "treasure-004",
-      "name": "Phylactery Shard",
-      "type": "treasure",
-      "effect": "buff",
+      "id": "rune-002",
+      "name": "Rune of Defense",
+      "type": "equipment",
       "stat": "defense",
-      "value": 2,
-      "description": "A fragment of dark power that protects the bearer.",
+      "value": 1,
+      "description": "A stony rune that grants +1 Defense.",
       "quantity": 2
     },
     {
-      "id": "event-001",
-      "name": "Collapsing Ceiling",
-      "type": "event",
-      "effect": "trap",
-      "damage": 8,
-      "description": "Rocks fall from above!",
-      "quantity": 3
-    },
-    {
-      "id": "event-002",
-      "name": "Necromantic Aura",
-      "type": "event",
-      "effect": "trap",
-      "damage": 4,
-      "description": "Dark energy courses through your veins.",
-      "quantity": 3
-    },
-    {
-      "id": "event-003",
-      "name": "Healing Shrine",
-      "type": "event",
-      "effect": "heal",
-      "value": 20,
-      "description": "A blessed altar restores your health.",
-      "quantity": 1
+      "id": "rune-003",
+      "name": "Rune of Fortitude",
+      "type": "equipment",
+      "stat": "fortitude",
+      "value": 1,
+      "description": "A warm rune that grants +1 maximum HP.",
+      "quantity": 2
     }
   ]
 }

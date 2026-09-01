@@ -401,6 +401,104 @@ button:disabled {
   display: none !important;
 }
 
+.popup-card {
+  position: fixed;
+  z-index: 80;
+  background: #16213e;
+  border: 2px solid #0f3460;
+  border-radius: 10px;
+  padding: 0.75rem 1rem;
+  min-width: 180px;
+  max-width: 250px;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.6);
+  pointer-events: none;
+}
+
+.popup-card .name {
+  font-weight: bold;
+  font-size: 0.95rem;
+  color: #eaeaea;
+}
+
+.popup-card .desc {
+  font-size: 0.8rem;
+  color: #a0a0a0;
+  margin: 0.25rem 0;
+}
+
+.popup-card .hp-bar {
+  width: 100%;
+  height: 8px;
+  background: #1a1a2e;
+  border-radius: 4px;
+  overflow: hidden;
+  margin: 0.25rem 0;
+}
+
+.popup-card .hp-fill {
+  height: 100%;
+  border-radius: 4px;
+  transition: width 0.3s, background 0.3s;
+}
+
+.popup-card .stats {
+  font-size: 0.8rem;
+  color: #eaeaea;
+  display: flex;
+  justify-content: space-between;
+  padding: 0.1rem 0;
+}
+
+.popup-card .effect {
+  font-size: 0.9rem;
+  color: #ffd700;
+  margin-top: 0.35rem;
+}
+
+.popup-badge {
+  font-size: 0.65rem;
+  font-weight: bold;
+  background: #e94560;
+  color: #fff;
+  border-radius: 3px;
+  padding: 0.1rem 0.35rem;
+  margin-left: 0.4rem;
+  vertical-align: middle;
+  text-transform: uppercase;
+  letter-spacing: 0.03rem;
+}
+
+.rune-line {
+  display: flex;
+  gap: 0.3rem;
+  flex-wrap: wrap;
+}
+
+.rune-chip {
+  font-size: 0.7rem;
+  background: #1a1a2e;
+  border-radius: 4px;
+  padding: 0.05rem 0.35rem;
+  line-height: 1.4;
+}
+
+.no-runes {
+  font-size: 0.7rem;
+  color: #555;
+}
+
+.stat-bonus {
+  color: #ffd700;
+  font-weight: bold;
+}
+
+.hero-detail-rune {
+  background: #0f3460;
+  border-radius: 6px;
+  padding: 0.4rem 0.6rem;
+  font-size: 0.85rem;
+}
+
 .modal-backdrop {
   position: fixed;
   inset: 0;
@@ -749,18 +847,24 @@ button:disabled {
   color: white;
 }
 
-.tile-encounter.treasure {
+.tile-encounter.trap {
+  background: #ff9f43;
+  color: white;
+}
+
+.tile-encounter.heal {
+  background: #53d769;
+  color: #1a1a2e;
+}
+
+.tile-encounter.gold {
   background: #ffd700;
   color: #1a1a2e;
 }
 
-.tile-encounter.event {
-  background: #00a8ff;
+.tile-encounter.equipment {
+  background: #9b59d0;
   color: white;
-}
-
-.tile-encounter.event::before {
-  content: '⚠';
 }
 
 @keyframes pulse {

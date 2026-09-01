@@ -3,9 +3,28 @@
 // ============================================
 
 import { state } from './state.js';
-import { posKey, parseKey, getDirDelta, getOppositeDir, rotateExits, getRotationLabel } from './utils.js';
+import { posKey, parseKey, getDirDelta, getOppositeDir, rotateExits, getRotationLabel, getRunData, effectiveMaxHp } from './utils.js';
 import { PLAYER_COLORS } from './data.js';
 import { abilityDescription } from './encounters.js';
+
+const RUNE_META = {
+  strength: { icon: '⚔', label: 'Rune of Strength', color: '#e94560' },
+  defense: { icon: '🛡', label: 'Rune of Defense', color: '#00a8ff' },
+  fortitude: { icon: '❤', label: 'Rune of Fortitude', color: '#53d769' }
+};
+
+function encounterEffectLine(enc) {
+  switch (enc.type) {
+    case 'trap': return `Damage: ${enc.damage || 2}`;
+    case 'heal': return `Heals: ${enc.value || 5} HP`;
+    case 'gold': return `Gold: ${enc.value || 25}`;
+    case 'equipment': {
+      const meta = RUNE_META[enc.stat];
+      return meta ? `${meta.label.replace('Rune of ', '')} +${enc.value || 1}` : `Stat +${enc.value || 1}`;
+    }
+    default: return '';
+  }
+}
 
 export function getAdjacentEmptyTiles(row, col) {
   const dirs = ['north', 'south', 'west', 'east'];
@@ -106,7 +125,11 @@ export function renderTileContent(tile, row, col) {
   }
 
   if (tile.encounter) {
-    const icon = tile.encounter.type === 'monster' ? '⚔' : tile.encounter.type === 'event' ? '⚠' : '★';
+    const icon = tile.encounter.type === 'monster' ? '⚔'
+      : tile.encounter.type === 'trap' ? '⚠'
+      : tile.encounter.type === 'heal' ? '✚'
+      : tile.encounter.type === 'gold' ? '$'
+      : '◆';
     html += `<div class="tile-encounter ${tile.encounter.type}">${icon}</div>`;
   }
 
@@ -123,6 +146,7 @@ export function renderTileContent(tile, row, col) {
 }
 
 export function renderBoard() {
+  hideEncounterInfo();
   const grid = document.getElementById('dungeon-grid');
   grid.innerHTML = '';
 
@@ -314,13 +338,20 @@ export function renderHeroes() {
   state.players.forEach((player, index) => {
     const div = document.createElement('div');
     div.className = 'hero-card' + (index === state.currentPlayer ? ' active' : '');
-    const hpPct = player.hp > 0 ? Math.round(player.currentHp / player.hp * 100) : 0;
+    const maxHp = effectiveMaxHp(player);
+    const hpPct = maxHp > 0 ? Math.round(player.currentHp / maxHp * 100) : 0;
     const hpColor = hpPct > 50 ? '#53d769' : hpPct > 25 ? '#ffd700' : '#e94560';
+    const runes = getRunData(player);
+    const runeChips = Object.entries(RUNE_META)
+      .filter(([key]) => runes[key] > 0)
+      .map(([key, meta]) => `<span class="rune-chip" title="${meta.label}" style="color:${meta.color}">${meta.icon}${runes[key]}</span>`)
+      .join('');
     div.innerHTML = `
       <div class="name" style="color:${PLAYER_COLORS[index]}">${player.name}</div>
       <div class="hp-bar"><div class="hp-fill" style="width:${hpPct}%;background:${hpColor}"></div></div>
-      <div class="stats"><span>HP</span><span>${player.currentHp}/${player.hp}</span></div>
+      <div class="stats"><span>HP</span><span>${player.currentHp}/${maxHp}</span></div>
       <div class="stats"><span>Gold</span><span>${player.gold}</span></div>
+      <div class="rune-line">${runeChips || '<span class="no-runes">No runes</span>'}</div>
     `;
     div.addEventListener('click', () => openHeroDetailModal(index));
     container.appendChild(div);
@@ -334,16 +365,32 @@ export function openHeroDetailModal(index) {
   const abilities = (player.abilities || []).map(a => `
     <div class="ability-entry"><strong>[${a.roll}] ${a.name}</strong>: ${abilityDescription(a)}</div>
   `).join('');
+  const runes = getRunData(player);
+  const maxHp = effectiveMaxHp(player);
+
+  const statLine = (label, base, bonus) => {
+    const bonusText = bonus > 0 ? `<span class="stat-bonus">+${bonus}</span>` : '';
+    const valueHtml = `<span class="value">${base}${bonusText}</span>`;
+    return `<div class="hero-detail-row"><span class="label">${label}</span>${valueHtml}</div>`;
+  };
+
+  const runeEntries = Object.entries(RUNE_META)
+    .filter(([key]) => runes[key] > 0)
+    .map(([key, meta]) => `<div class="hero-detail-rune" style="color:${meta.color}">${meta.icon} ${meta.label} x${runes[key]}</div>`)
+    .join('');
+
   body.innerHTML = `
     <div class="hero-detail-name" style="color:${PLAYER_COLORS[index]}">${player.name}</div>
     <div class="hero-detail-grid">
-      <div class="hero-detail-row"><span class="label">HP</span><span class="value">${player.currentHp}/${player.hp}</span></div>
+      <div class="hero-detail-row"><span class="label">HP</span><span class="value">${player.currentHp}/${maxHp}</span></div>
       <div class="hero-detail-row"><span class="label">Gold</span><span class="value">${player.gold}</span></div>
-      <div class="hero-detail-row"><span class="label">Attack</span><span class="value">${player.attack}</span></div>
-      <div class="hero-detail-row"><span class="label">Defense</span><span class="value">${player.defense}</span></div>
+      ${statLine('Attack', player.attack, runes.strength)}
+      ${statLine('Defense', player.defense, runes.defense)}
+      ${statLine('Max HP', player.hp, runes.fortitude)}
       <div class="hero-detail-row"><span class="label">Position</span><span class="value">(${player.position.row}, ${player.position.col})</span></div>
     </div>
     ${abilities ? `<div class="hero-detail-abilities"><div class="label">Abilities</div>${abilities}</div>` : ''}
+    <div class="hero-detail-abilities"><div class="label">Runes</div>${runeEntries || '<div class="hero-detail-rune">None</div>'}</div>
   `;
   document.getElementById('hero-modal').classList.remove('hidden');
 }
@@ -374,7 +421,7 @@ export function renderEncounter() {
     const player = state.players[state.currentPlayer];
     const hpDisplay = enc.type === 'monster'
       ? `HP: ${enc.currentHp || enc.hp}/${enc.hp} | ATK: ${enc.attack} | DEF: ${enc.defense}`
-      : `Effect: ${enc.effect}`;
+      : encounterEffectLine(enc);
 
     card.innerHTML = `
       <h3>${enc.name}</h3>
@@ -421,6 +468,73 @@ export function renderEncounter() {
 
   document.getElementById('turn-display').textContent = `Turn: ${state.turn}`;
   document.getElementById('player-display').textContent = `Player: ${state.currentPlayer + 1}`;
+}
+
+export function showEncounterInfo(e, encounter) {
+  const popup = document.getElementById('encounter-info-popup');
+  if (!popup) return;
+
+  let html = '';
+  if (encounter.type === 'monster') {
+    const isBoss = encounter.id && encounter.id.includes('boss');
+    const hp = encounter.currentHp || encounter.hp;
+    const hpPct = encounter.hp > 0 ? Math.round(hp / encounter.hp * 100) : 0;
+    const hpColor = hpPct > 50 ? '#53d769' : hpPct > 25 ? '#ffd700' : '#e94560';
+    html = `
+      <div class="name">${encounter.name}${isBoss ? '<span class="popup-badge">BOSS</span>' : ''}</div>
+      <div class="desc">${encounter.description || ''}</div>
+      <div class="hp-bar"><div class="hp-fill" style="width:${hpPct}%;background:${hpColor}"></div></div>
+      <div class="stats"><span>HP</span><span>${hp}/${encounter.hp}</span></div>
+      <div class="stats"><span>Attack</span><span>${encounter.attack}</span></div>
+      <div class="stats"><span>Defense</span><span>${encounter.defense}</span></div>
+      <div class="stats"><span>Gold</span><span>${encounter.gold || 0}</span></div>
+    `;
+  } else {
+    const typeLabel = { trap: 'Trap', heal: 'Heal', gold: 'Gold', equipment: 'Equipment' }[encounter.type] || 'Encounter';
+    html = `
+      <div class="name">${encounter.name} <span class="popup-badge" style="background:#0f3460">${typeLabel}</span></div>
+      <div class="desc">${encounter.description || ''}</div>
+      <div class="effect">${encounterEffectLine(encounter)}</div>
+    `;
+  }
+  popup.innerHTML = html;
+  popup.classList.remove('hidden');
+
+  const pad = 14;
+  let x = e.clientX + pad;
+  let y = e.clientY + pad;
+  const rect = popup.getBoundingClientRect();
+  if (x + rect.width > window.innerWidth) x = Math.max(4, e.clientX - rect.width - pad);
+  if (y + rect.height > window.innerHeight) y = Math.max(4, e.clientY - rect.height - pad);
+  popup.style.left = `${x}px`;
+  popup.style.top = `${y}px`;
+}
+
+export function hideEncounterInfo() {
+  const popup = document.getElementById('encounter-info-popup');
+  if (popup) popup.classList.add('hidden');
+}
+
+export function initEncounterHover() {
+  const grid = document.getElementById('dungeon-grid');
+  if (!grid) return;
+
+  grid.addEventListener('mouseover', (e) => {
+    const tileEl = e.target.closest ? e.target.closest('.tile.explored') : null;
+    if (!tileEl) { hideEncounterInfo(); return; }
+    const row = Number(tileEl.dataset.row);
+    const col = Number(tileEl.dataset.col);
+    const tile = state.dungeon.get(posKey(row, col));
+    if (tile && tile.encounter) showEncounterInfo(e, tile.encounter);
+    else hideEncounterInfo();
+  });
+
+  grid.addEventListener('mouseout', (e) => {
+    const related = e.relatedTarget;
+    if (!related || !related.closest || !related.closest('.tile.explored')) {
+      hideEncounterInfo();
+    }
+  });
 }
 
 export function render() {

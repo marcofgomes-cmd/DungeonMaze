@@ -3,7 +3,9 @@
 // ============================================
 
 import { state } from './state.js';
-import { posKey } from './utils.js';
+import { posKey, effectiveAttack, effectiveDefense, effectiveMaxHp } from './utils.js';
+
+const RUNE_STAT_LABEL = { strength: 'Attack', defense: 'Defense', fortitude: 'Max HP' };
 
 export function rollD6() {
   return Math.floor(Math.random() * 6) + 1;
@@ -29,7 +31,7 @@ export function abilityDescription(ability) {
 export function applyAbility(ability, player, heroDamage, monsterDamage) {
   switch (ability.effect) {
     case 'heal': {
-      const healed = Math.min(player.hp - player.currentHp, ability.value || 0);
+      const healed = Math.min(effectiveMaxHp(player) - player.currentHp, ability.value || 0);
       player.currentHp += healed;
       return { heroDamage, monsterDamage, description: `Heal ${healed} HP` };
     }
@@ -44,19 +46,27 @@ export function applyAbility(ability, player, heroDamage, monsterDamage) {
   }
 }
 
+export function handleHeroDefeat(player) {
+  player.currentHp = effectiveMaxHp(player);
+  player.position = { row: 0, col: 0 };
+  const lostGold = player.gold > 0 ? 1 : 0;
+  player.gold -= lostGold;
+  return lostGold ? 'Teleported to the entrance. Lost 1 gold in the fall.' : 'Teleported to the entrance.';
+}
+
 export function resolveEncounter() {
   if (!state.currentEncounter) return { message: 'No encounter.', type: 'hero', resolved: true };
 
   const player = state.players[state.currentPlayer];
   const pos = player.position;
   const tile = state.dungeon.get(posKey(pos.row, pos.col));
+  const enc = state.currentEncounter;
 
-  if (state.currentEncounter.type === 'monster') {
-    const monster = state.currentEncounter;
+  if (enc.type === 'monster') {
     const combat = state.combatResult || rollCombatDice();
 
-    let heroDamage = Math.max(0, combat.heroRoll + player.attack - monster.defense);
-    let monsterDamage = Math.max(0, combat.monsterRoll + monster.attack - player.defense);
+    let heroDamage = Math.max(0, combat.heroRoll + effectiveAttack(player) - enc.defense);
+    let monsterDamage = Math.max(0, combat.monsterRoll + enc.attack - effectiveDefense(player));
 
     const messages = [];
     const ability = (player.abilities || []).find(a => a.roll === combat.heroRoll);
@@ -67,63 +77,70 @@ export function resolveEncounter() {
       messages.push(`[${ability.roll}] ${ability.name}: ${result.description}`);
     }
 
-    monster.currentHp = (monster.currentHp || monster.hp) - heroDamage;
+    enc.currentHp = (enc.currentHp || enc.hp) - heroDamage;
     player.currentHp -= monsterDamage;
 
-    messages.push(`You rolled ${combat.heroRoll} + ${player.attack} ATK - ${monster.defense} DEF = ${heroDamage} damage`);
-    messages.push(`${monster.name} rolled ${combat.monsterRoll} + ${monster.attack} ATK - ${player.defense} DEF = ${monsterDamage} damage`);
+    messages.push(`You rolled ${combat.heroRoll} + ${effectiveAttack(player)} ATK - ${enc.defense} DEF = ${heroDamage} damage`);
+    messages.push(`${enc.name} rolled ${combat.monsterRoll} + ${enc.attack} ATK - ${effectiveDefense(player)} DEF = ${monsterDamage} damage`);
 
-    if (monster.currentHp <= 0) {
-      const goldEarned = monster.gold || 0;
+    const heroDefeated = player.currentHp <= 0;
+    const isBoss = enc.id && enc.id.includes('boss');
+
+    if (enc.currentHp <= 0) {
+      const goldEarned = enc.gold || 0;
       player.gold += goldEarned;
       if (tile) tile.encounter = null;
-      messages.push(`${monster.name} defeated! +${goldEarned} gold.`);
+      messages.push(`${enc.name} defeated! +${goldEarned} gold.`);
 
-      const isBoss = monster.id && monster.id.includes('boss');
+      if (heroDefeated) {
+        messages.push(`You fell in the same blow! ${handleHeroDefeat(player)}`);
+      }
       return { message: messages.join(' | '), type: 'treasure', resolved: true, questComplete: isBoss };
     }
 
-    if (player.currentHp <= 0) {
-      player.currentHp = player.hp;
-      player.position = { row: 0, col: 0 };
-      monster.wasFought = true;
-      messages.push(`Defeated! The ${monster.name} remains in the room. Teleported to entrance.`);
+    if (heroDefeated) {
+      enc.wasFought = true;
+      messages.push(`Defeated! The ${enc.name} remains in the room. ${handleHeroDefeat(player)}`);
       return { message: messages.join(' | '), type: 'monster', resolved: true };
     }
 
-    monster.wasFought = true;
-    messages.push(`You: ${player.currentHp}/${player.hp} HP | ${monster.name}: ${monster.currentHp}/${monster.hp} HP`);
+    enc.wasFought = true;
+    messages.push(`You: ${player.currentHp}/${effectiveMaxHp(player)} HP | ${enc.name}: ${enc.currentHp}/${enc.hp} HP`);
     return { message: messages.join(' | '), type: 'monster', resolved: false };
-  } else if (state.currentEncounter.type === 'treasure') {
-    const treasure = state.currentEncounter;
-    if (tile) tile.encounter = null;
+  }
 
-    if (treasure.effect === 'heal') {
-      player.currentHp = Math.min(player.hp, player.currentHp + treasure.value);
-      return { message: `Found ${treasure.name}! +${treasure.value} HP.`, type: 'treasure', resolved: true };
-    }
-    return { message: `Found ${treasure.name}!`, type: 'treasure', resolved: true };
-  } else if (state.currentEncounter.type === 'event') {
-    const event = state.currentEncounter;
+  if (enc.type === 'trap') {
+    const damage = enc.damage || 2;
+    player.currentHp -= damage;
     if (tile) tile.encounter = null;
-
-    if (event.effect === 'trap') {
-      const damage = event.damage || 5;
-      player.currentHp -= damage;
-      if (player.currentHp <= 0) {
-        player.currentHp = player.hp;
-        player.position = { row: 0, col: 0 };
-        return { message: `${event.name}! took ${damage} damage. Teleported to entrance.`, type: 'monster', resolved: true };
-      }
-      return { message: `${event.name}! took ${damage} damage.`, type: 'monster', resolved: true };
-    } else if (event.effect === 'heal') {
-      const heal = event.value || 10;
-      player.currentHp = Math.min(player.hp, player.currentHp + heal);
-      return { message: `${event.name}! Restored ${heal} HP.`, type: 'treasure', resolved: true };
-    } else if (event.effect === 'gold') {
-      return { message: `${event.name}!`, type: 'treasure', resolved: true };
+    if (player.currentHp <= 0) {
+      return { message: `${enc.name}! Took ${damage} damage. ${handleHeroDefeat(player)}`, type: 'monster', resolved: true };
     }
-    return { message: `${event.name}!`, type: 'hero', resolved: true };
+    return { message: `${enc.name}! Took ${damage} damage.`, type: 'monster', resolved: true };
+  }
+
+  if (enc.type === 'heal') {
+    const healed = Math.min(effectiveMaxHp(player) - player.currentHp, enc.value || 5);
+    player.currentHp += healed;
+    if (tile) tile.encounter = null;
+    return { message: `${enc.name}! Restored ${healed} HP.`, type: 'treasure', resolved: true };
+  }
+
+  if (enc.type === 'gold') {
+    const gold = enc.value || 25;
+    player.gold += gold;
+    if (tile) tile.encounter = null;
+    return { message: `${enc.name}! +${gold} gold.`, type: 'treasure', resolved: true };
+  }
+
+  if (enc.type === 'equipment') {
+    if (!player.runes) player.runes = { strength: 0, defense: 0, fortitude: 0 };
+    const stat = RUNE_STAT_LABEL[enc.stat] ? enc.stat : 'strength';
+    const value = enc.value || 1;
+    player.runes[stat] = (player.runes[stat] || 0) + value;
+    if (stat === 'fortitude') player.currentHp = Math.min(effectiveMaxHp(player), player.currentHp + value);
+    if (tile) tile.encounter = null;
+    return { message: `${enc.name}! ${RUNE_STAT_LABEL[stat]} bonus +${player.runes[stat]}.`, type: 'treasure', resolved: true };
   }
 
   if (tile) tile.encounter = null;

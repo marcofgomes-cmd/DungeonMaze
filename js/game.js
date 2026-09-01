@@ -5,10 +5,10 @@
 import { state, resetState } from './state.js';
 import { shuffle, expandDeckByQuantity, posKey, getDirDelta, getRotationLabel, rotateExits } from './utils.js';
 import { loadRoomCards, loadHeroes, loadQuests } from './data.js';
-import { rollCombatDice, resolveEncounter } from './encounters.js';
+import { rollCombatDice, resolveEncounter, handleHeroDefeat } from './encounters.js';
 import {
   canPlaceInDir, findValidRotation, placeTile, movePlayer,
-  drawTile, drawEncounterCard, render, closeHeroDetailModal
+  drawTile, drawEncounterCard, render, closeHeroDetailModal, initEncounterHover
 } from './board.js';
 
 // --- LOGGING ---
@@ -21,6 +21,10 @@ function log(message, type = 'hero') {
   if (logContainer.children.length > 50) {
     logContainer.removeChild(logContainer.lastChild);
   }
+}
+
+function logEncounterType(type) {
+  return type === 'monster' || type === 'trap' ? 'monster' : 'treasure';
 }
 
 // --- QUEST SELECTION ---
@@ -73,6 +77,7 @@ async function startGame(encounters) {
       ...hero,
       currentHp: hero.hp,
       gold: 0,
+      runes: { strength: 0, defense: 0, fortitude: 0 },
       position: { row: 0, col: 0 }
     }));
   }
@@ -150,7 +155,7 @@ window.onTileClick = function (row, col) {
 
   if (tile.encounter) {
     state.currentEncounter = tile.encounter;
-    log(`Encounter: ${tile.encounter.name}`, tile.encounter.type === 'monster' ? 'monster' : 'treasure');
+    log(`Encounter: ${tile.encounter.name}`, logEncounterType(tile.encounter.type));
     state.phase = tile.encounter.type === 'monster' && tile.encounter.wasFought ? 'encounter-choice' : 'resolve-encounter';
   } else {
     nextTurn();
@@ -214,7 +219,7 @@ function processDrawEncounter() {
   if (tile) tile.encounter = enc;
 
   state.currentEncounter = enc;
-  log(`Encounter: ${enc.name}`, enc.type === 'monster' ? 'monster' : 'treasure');
+  log(`Encounter: ${enc.name}`, logEncounterType(enc.type));
   state.phase = enc.type === 'monster' && enc.wasFought ? 'encounter-choice' : 'resolve-encounter';
   render();
 }
@@ -305,9 +310,7 @@ window.onRunSelect = function (row, col) {
 
   player.currentHp -= 1;
   if (player.currentHp <= 0) {
-    player.currentHp = player.hp;
-    player.position = { row: 0, col: 0 };
-    log('You collapsed from the escape! Teleported to entrance.', 'monster');
+    log(`You collapsed from the escape! ${handleHeroDefeat(player)}`, 'monster');
   }
 
   state.runTargets = [];
@@ -316,7 +319,7 @@ window.onRunSelect = function (row, col) {
 
   if (player.currentHp > 0 && !(player.position.row === 0 && player.position.col === 0) && tile.encounter) {
     state.currentEncounter = tile.encounter;
-    log(`Encounter: ${tile.encounter.name}`, tile.encounter.type === 'monster' ? 'monster' : 'treasure');
+    log(`Encounter: ${tile.encounter.name}`, logEncounterType(tile.encounter.type));
     state.phase = tile.encounter.type === 'monster' && tile.encounter.wasFought ? 'encounter-choice' : 'resolve-encounter';
   } else {
     nextTurn();
@@ -351,6 +354,7 @@ async function init() {
     document.getElementById('fight-btn').addEventListener('click', onFight);
     document.getElementById('run-btn').addEventListener('click', onRun);
     document.getElementById('rotate-btn').addEventListener('click', onRotateTile);
+    initEncounterHover();
 
     document.getElementById('hero-modal-close').addEventListener('click', closeHeroDetailModal);
     document.getElementById('hero-modal').addEventListener('click', (e) => {
