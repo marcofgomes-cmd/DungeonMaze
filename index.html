@@ -78,14 +78,19 @@
 
   <!-- Encounter modal -->
   <div id="encounter-modal" class="modal-backdrop hidden">
-    <div class="modal">
-      <div class="modal-header"><h2>Encounter</h2></div>
-      <div id="encounter-card"></div>
+    <div class="modal modal-encounter">
+      <div id="vs-screen">
+        <div id="hero-side" class="vs-card-side"></div>
+        <div id="vs-divider">
+          <div class="vs-text">VS</div>
+          <div id="vs-dice" class="hidden"></div>
+        </div>
+        <div id="encounter-side" class="vs-card-side"></div>
+      </div>
       <div id="combat-area">
         <button id="fight-btn" class="hidden">Fight</button>
         <button id="run-btn" class="hidden">Run</button>
         <button id="roll-dice" class="hidden">Roll d6</button>
-        <div id="dice-result" class="hidden"></div>
         <button id="resolve-btn" class="hidden">Resolve</button>
       </div>
     </div>

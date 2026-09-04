@@ -8,7 +8,7 @@ import { loadRoomCards, loadHeroes, loadQuests } from './data.js';
 import { rollCombatDice, resolveEncounter, handleHeroDefeat } from './encounters.js';
 import {
   canPlaceInDir, findValidRotation, placeTile, movePlayer,
-  drawTile, drawEncounterCard, render, closeHeroDetailModal, initEncounterHover
+  drawTile, drawEncounterCard, render, closeHeroDetailModal, initEncounterHover, showFloatingNumbers
 } from './board.js';
 
 // --- LOGGING ---
@@ -253,13 +253,18 @@ function onRotateTile() {
 function onResolve() {
   const result = resolveEncounter();
   log(result.message, result.type);
-  state.combatResult = null;
-  if (result.resolved && result.questComplete) {
-    completeQuest();
-  } else {
-    nextTurn();
-  }
+  showFloatingNumbers(result);
   render();
+
+  setTimeout(() => {
+    state.combatResult = null;
+    if (result.resolved && result.questComplete) {
+      completeQuest();
+    } else {
+      nextTurn();
+    }
+    render();
+  }, 1500);
 }
 
 function onFight() {

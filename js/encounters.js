@@ -55,12 +55,16 @@ export function handleHeroDefeat(player) {
 }
 
 export function resolveEncounter() {
-  if (!state.currentEncounter) return { message: 'No encounter.', type: 'hero', resolved: true };
+  if (!state.currentEncounter) return { message: 'No encounter.', type: 'hero', resolved: true, heroHpDelta: 0, monsterHpDelta: 0, goldDelta: 0 };
 
   const player = state.players[state.currentPlayer];
   const pos = player.position;
   const tile = state.dungeon.get(posKey(pos.row, pos.col));
   const enc = state.currentEncounter;
+
+  const heroHpBefore = player.currentHp;
+  const goldBefore = player.gold;
+  const monsterHpBefore = enc.currentHp || enc.hp;
 
   if (enc.type === 'monster') {
     const combat = state.combatResult || rollCombatDice();
@@ -95,18 +99,33 @@ export function resolveEncounter() {
       if (heroDefeated) {
         messages.push(`You fell in the same blow! ${handleHeroDefeat(player)}`);
       }
-      return { message: messages.join(' | '), type: 'treasure', resolved: true, questComplete: isBoss };
+      return {
+        message: messages.join(' | '), type: 'treasure', resolved: true, questComplete: isBoss,
+        heroHpDelta: player.currentHp - heroHpBefore,
+        monsterHpDelta: enc.currentHp - monsterHpBefore,
+        goldDelta: player.gold - goldBefore
+      };
     }
 
     if (heroDefeated) {
       enc.wasFought = true;
       messages.push(`Defeated! The ${enc.name} remains in the room. ${handleHeroDefeat(player)}`);
-      return { message: messages.join(' | '), type: 'monster', resolved: true };
+      return {
+        message: messages.join(' | '), type: 'monster', resolved: true,
+        heroHpDelta: player.currentHp - heroHpBefore,
+        monsterHpDelta: enc.currentHp - monsterHpBefore,
+        goldDelta: 0
+      };
     }
 
     enc.wasFought = true;
     messages.push(`You: ${player.currentHp}/${effectiveMaxHp(player)} HP | ${enc.name}: ${enc.currentHp}/${enc.hp} HP`);
-    return { message: messages.join(' | '), type: 'monster', resolved: false };
+    return {
+      message: messages.join(' | '), type: 'monster', resolved: false,
+      heroHpDelta: player.currentHp - heroHpBefore,
+      monsterHpDelta: enc.currentHp - monsterHpBefore,
+      goldDelta: 0
+    };
   }
 
   if (enc.type === 'trap') {
@@ -114,23 +133,39 @@ export function resolveEncounter() {
     player.currentHp -= damage;
     if (tile) tile.encounter = null;
     if (player.currentHp <= 0) {
-      return { message: `${enc.name}! Took ${damage} damage. ${handleHeroDefeat(player)}`, type: 'monster', resolved: true };
+      return {
+        message: `${enc.name}! Took ${damage} damage. ${handleHeroDefeat(player)}`, type: 'monster', resolved: true,
+        heroHpDelta: player.currentHp - heroHpBefore,
+        monsterHpDelta: 0, goldDelta: 0
+      };
     }
-    return { message: `${enc.name}! Took ${damage} damage.`, type: 'monster', resolved: true };
+    return {
+      message: `${enc.name}! Took ${damage} damage.`, type: 'monster', resolved: true,
+      heroHpDelta: player.currentHp - heroHpBefore,
+      monsterHpDelta: 0, goldDelta: 0
+    };
   }
 
   if (enc.type === 'heal') {
     const healed = Math.min(effectiveMaxHp(player) - player.currentHp, enc.value || 5);
     player.currentHp += healed;
     if (tile) tile.encounter = null;
-    return { message: `${enc.name}! Restored ${healed} HP.`, type: 'treasure', resolved: true };
+    return {
+      message: `${enc.name}! Restored ${healed} HP.`, type: 'treasure', resolved: true,
+      heroHpDelta: healed,
+      monsterHpDelta: 0, goldDelta: 0
+    };
   }
 
   if (enc.type === 'gold') {
     const gold = enc.value || 25;
     player.gold += gold;
     if (tile) tile.encounter = null;
-    return { message: `${enc.name}! +${gold} gold.`, type: 'treasure', resolved: true };
+    return {
+      message: `${enc.name}! +${gold} gold.`, type: 'treasure', resolved: true,
+      heroHpDelta: 0,
+      monsterHpDelta: 0, goldDelta: gold
+    };
   }
 
   if (enc.type === 'equipment') {
@@ -140,9 +175,17 @@ export function resolveEncounter() {
     player.runes[stat] = (player.runes[stat] || 0) + value;
     if (stat === 'fortitude') player.currentHp = Math.min(effectiveMaxHp(player), player.currentHp + value);
     if (tile) tile.encounter = null;
-    return { message: `${enc.name}! ${RUNE_STAT_LABEL[stat]} bonus +${player.runes[stat]}.`, type: 'treasure', resolved: true };
+    return {
+      message: `${enc.name}! ${RUNE_STAT_LABEL[stat]} bonus +${player.runes[stat]}.`, type: 'treasure', resolved: true,
+      heroHpDelta: player.currentHp - heroHpBefore,
+      monsterHpDelta: 0, goldDelta: 0,
+      runeStat: stat
+    };
   }
 
   if (tile) tile.encounter = null;
-  return { message: 'Encounter resolved.', type: 'hero', resolved: true };
+  return {
+    message: 'Encounter resolved.', type: 'hero', resolved: true,
+    heroHpDelta: 0, monsterHpDelta: 0, goldDelta: 0
+  };
 }

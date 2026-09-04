@@ -3,7 +3,7 @@
 // ============================================
 
 import { state } from './state.js';
-import { posKey, parseKey, getDirDelta, getOppositeDir, rotateExits, getRotationLabel, getRunData, effectiveMaxHp } from './utils.js';
+import { posKey, parseKey, getDirDelta, getOppositeDir, rotateExits, getRotationLabel, getRunData, effectiveMaxHp, effectiveAttack, effectiveDefense } from './utils.js';
 import { PLAYER_COLORS } from './data.js';
 import { abilityDescription } from './encounters.js';
 
@@ -413,75 +413,150 @@ export function closeHeroDetailModal() {
   document.getElementById('hero-modal').classList.add('hidden');
 }
 
+function hpBarHtml(current, max) {
+  const pct = max > 0 ? Math.round(current / max * 100) : 0;
+  const color = pct > 50 ? '#53d769' : pct > 25 ? '#ffd700' : '#e94560';
+  return `<div class="card-bar"><div class="card-bar-fill" style="width:${pct}%;background:${color}"></div></div>`;
+}
+
+function heroCardHtml(player, index) {
+  const maxHp = effectiveMaxHp(player);
+  const runes = getRunData(player);
+  const runeChips = Object.entries(RUNE_META)
+    .filter(([key]) => runes[key] > 0)
+    .map(([key, meta]) => `<span class="rune-chip" title="${meta.label}" style="color:${meta.color}">${meta.icon}${runes[key]}</span>`)
+    .join('');
+  return `
+    <div class="card-name" style="color:${PLAYER_COLORS[index]}">${player.name}</div>
+    ${hpBarHtml(player.currentHp, maxHp)}
+    <div class="card-stats"><span>HP</span><span>${player.currentHp}/${maxHp}</span></div>
+    <div class="card-stats"><span>ATK</span><span>${effectiveAttack(player)}</span></div>
+    <div class="card-stats"><span>DEF</span><span>${effectiveDefense(player)}</span></div>
+    <div class="card-stats"><span>Gold</span><span>${player.gold}</span></div>
+    <div class="card-runes">${runeChips || ''}</div>
+  `;
+}
+
+function encounterCardHtml(enc) {
+  if (enc.type === 'monster') {
+    const hp = enc.currentHp || enc.hp;
+    const isBoss = enc.id && enc.id.includes('boss');
+    return `
+      <div class="card-name">${enc.name}${isBoss ? ' <span class="card-badge">BOSS</span>' : ''}</div>
+      <div class="card-desc">${enc.description || ''}</div>
+      ${hpBarHtml(hp, enc.hp)}
+      <div class="card-stats"><span>HP</span><span>${hp}/${enc.hp}</span></div>
+      <div class="card-stats"><span>ATK</span><span>${enc.attack}</span></div>
+      <div class="card-stats"><span>DEF</span><span>${enc.defense}</span></div>
+    `;
+  }
+  const typeLabel = { trap: 'Trap', heal: 'Heal', gold: 'Gold', equipment: 'Rune' }[enc.type] || 'Encounter';
+  return `
+    <div class="card-name">${enc.name} <span class="card-badge">${typeLabel}</span></div>
+    <div class="card-desc">${enc.description || ''}</div>
+    <div class="card-stats"><span>Effect</span><span>${encounterEffectLine(enc)}</span></div>
+  `;
+}
+
 export function renderEncounter() {
   const modal = document.getElementById('encounter-modal');
-  const card = document.getElementById('encounter-card');
+  const heroSide = document.getElementById('hero-side');
+  const encSide = document.getElementById('encounter-side');
+  const vsDice = document.getElementById('vs-dice');
   const rollBtn = document.getElementById('roll-dice');
-  const diceResult = document.getElementById('dice-result');
   const resolveBtn = document.getElementById('resolve-btn');
   const fightBtn = document.getElementById('fight-btn');
   const runBtn = document.getElementById('run-btn');
 
-  const resetCombatButtons = () => {
+  const hideAll = () => {
     rollBtn.classList.add('hidden');
     resolveBtn.classList.add('hidden');
-    diceResult.classList.add('hidden');
-    diceResult.innerHTML = '';
+    fightBtn.classList.add('hidden');
+    runBtn.classList.add('hidden');
+    vsDice.classList.add('hidden');
+    vsDice.innerHTML = '';
   };
 
   if (state.currentEncounter && (state.phase === 'resolve-encounter' || state.phase === 'encounter-choice')) {
     modal.classList.remove('hidden');
     const enc = state.currentEncounter;
     const player = state.players[state.currentPlayer];
-    const hpDisplay = enc.type === 'monster'
-      ? `HP: ${enc.currentHp || enc.hp}/${enc.hp} | ATK: ${enc.attack} | DEF: ${enc.defense}`
-      : encounterEffectLine(enc);
+    const index = state.currentPlayer;
 
-    card.innerHTML = `
-      <h3>${enc.name}</h3>
-      <p>${enc.description || ''}</p>
-      <div class="stats">${hpDisplay}</div>
-    `;
+    heroSide.innerHTML = heroCardHtml(player, index);
+    encSide.innerHTML = encounterCardHtml(enc);
 
     if (state.phase === 'encounter-choice') {
       fightBtn.classList.remove('hidden');
       runBtn.classList.remove('hidden');
-      resetCombatButtons();
+      vsDice.classList.add('hidden');
+      vsDice.innerHTML = '';
     } else {
-      fightBtn.classList.add('hidden');
-      runBtn.classList.add('hidden');
       if (enc.type === 'monster') {
         if (!state.combatResult) {
           rollBtn.classList.remove('hidden');
-          resolveBtn.classList.add('hidden');
-          diceResult.classList.add('hidden');
-          diceResult.innerHTML = '';
         } else {
-          rollBtn.classList.add('hidden');
           resolveBtn.classList.remove('hidden');
-          diceResult.classList.remove('hidden');
-          diceResult.innerHTML = `
+          vsDice.classList.remove('hidden');
+          vsDice.innerHTML = `
             <div class="dice-white" title="Hero dice">⬥ ${state.combatResult.heroRoll}</div>
             <div class="dice-black" title="Monster dice">⬥ ${state.combatResult.monsterRoll}</div>
           `;
         }
       } else {
         resolveBtn.classList.remove('hidden');
-        rollBtn.classList.add('hidden');
-        diceResult.classList.add('hidden');
-        diceResult.innerHTML = '';
       }
     }
   } else {
     modal.classList.add('hidden');
-    card.innerHTML = '<p>No current encounter</p>';
-    resetCombatButtons();
-    fightBtn.classList.add('hidden');
-    runBtn.classList.add('hidden');
+    heroSide.innerHTML = '';
+    encSide.innerHTML = '';
+    hideAll();
   }
 
   document.getElementById('turn-display').textContent = `Turn: ${state.turn}`;
   document.getElementById('player-display').textContent = `Player: ${state.currentPlayer + 1}`;
+}
+
+export function showFloatingNumbers(result) {
+  const heroSide = document.getElementById('hero-side');
+  const encSide = document.getElementById('encounter-side');
+
+  if (result.heroHpDelta < 0) {
+    const el = document.createElement('div');
+    el.className = 'floating-number damage';
+    el.textContent = result.heroHpDelta;
+    heroSide.appendChild(el);
+  } else if (result.heroHpDelta > 0) {
+    const el = document.createElement('div');
+    el.className = 'floating-number heal';
+    el.textContent = `+${result.heroHpDelta}`;
+    heroSide.appendChild(el);
+  }
+
+  if (result.monsterHpDelta < 0) {
+    const el = document.createElement('div');
+    el.className = 'floating-number damage';
+    el.textContent = result.monsterHpDelta;
+    encSide.appendChild(el);
+  }
+
+  if (result.goldDelta > 0) {
+    const el = document.createElement('div');
+    el.className = 'floating-number gold';
+    el.textContent = `+${result.goldDelta} gold`;
+    heroSide.appendChild(el);
+  }
+
+  if (result.runeStat) {
+    const meta = RUNE_META[result.runeStat];
+    if (meta) {
+      const el = document.createElement('div');
+      el.className = 'floating-number rune';
+      el.textContent = `${meta.icon} +1`;
+      heroSide.appendChild(el);
+    }
+  }
 }
 
 export function showEncounterInfo(e, encounter) {

@@ -335,20 +335,14 @@ section h2 {
   font-size: 0.85rem;
 }
 
-#encounter-card {
-  background: #0f3460;
-  padding: 0.75rem;
-  border-radius: 6px;
-  margin-bottom: 0.75rem;
-}
-
 #combat-area {
   display: flex;
   flex-direction: column;
   gap: 0.5rem;
+  align-items: center;
 }
 
-#dice-result {
+#vs-dice {
   display: flex;
   gap: 0.75rem;
   justify-content: center;
@@ -546,6 +540,147 @@ button:disabled {
 .modal-close:hover {
   background: transparent;
   color: #e94560;
+}
+
+.modal-encounter {
+  min-width: 600px;
+  max-width: 90vw;
+  padding: 1.5rem;
+}
+
+.vs-screen {
+  display: flex;
+  align-items: stretch;
+  gap: 0;
+  margin-bottom: 1rem;
+}
+
+.vs-card-side {
+  flex: 1;
+  background: #0f3460;
+  border-radius: 8px;
+  padding: 1rem;
+  position: relative;
+  overflow: visible;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.vs-card-side .card-name {
+  font-size: 1.1rem;
+  font-weight: bold;
+  text-align: center;
+  width: 100%;
+  margin-bottom: 0.25rem;
+}
+
+.vs-card-side .card-desc {
+  font-size: 0.78rem;
+  color: #a0a0a0;
+  text-align: center;
+  margin-bottom: 0.25rem;
+}
+
+.vs-card-side .card-bar {
+  width: 100%;
+  height: 10px;
+  background: #1a1a2e;
+  border-radius: 5px;
+  overflow: hidden;
+}
+
+.vs-card-side .card-bar-fill {
+  height: 100%;
+  border-radius: 5px;
+  transition: width 0.3s, background 0.3s;
+}
+
+.vs-card-side .card-stats {
+  width: 100%;
+  font-size: 0.78rem;
+  color: #eaeaea;
+  display: flex;
+  justify-content: space-between;
+  padding: 0.1rem 0;
+}
+
+.vs-card-side .card-runes {
+  display: flex;
+  gap: 0.3rem;
+  flex-wrap: wrap;
+  justify-content: center;
+  margin-top: 0.15rem;
+}
+
+.vs-card-side .card-badge {
+  font-size: 0.6rem;
+  font-weight: bold;
+  background: #e94560;
+  color: #fff;
+  border-radius: 3px;
+  padding: 0.1rem 0.35rem;
+  text-transform: uppercase;
+  letter-spacing: 0.03rem;
+}
+
+.vs-divider {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-width: 80px;
+  padding: 0 0.75rem;
+}
+
+.vs-text {
+  font-size: 1.6rem;
+  font-weight: 900;
+  color: #e94560;
+  text-shadow: 0 0 12px rgba(233, 69, 96, 0.5);
+  letter-spacing: 0.1rem;
+}
+
+#vs-dice {
+  margin-top: 0.75rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  align-items: center;
+}
+
+.floating-number {
+  position: absolute;
+  top: 30%;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 2.2rem;
+  font-weight: 900;
+  pointer-events: none;
+  z-index: 10;
+  text-shadow: 2px 2px 6px rgba(0, 0, 0, 0.8);
+  animation: float-up-fade 1.5s forwards;
+}
+
+.floating-number.damage { color: #e94560; }
+.floating-number.heal { color: #53d769; }
+.floating-number.gold { color: #ffd700; }
+.floating-number.rune { color: #9b59d0; }
+
+@keyframes float-up-fade {
+  0% {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0) scale(1.3);
+  }
+  60% {
+    opacity: 1;
+    transform: translateX(-50%) translateY(-30px) scale(1);
+  }
+  100% {
+    opacity: 0;
+    transform: translateX(-50%) translateY(-55px) scale(0.8);
+  }
 }
 
 #hero-modal-body {
