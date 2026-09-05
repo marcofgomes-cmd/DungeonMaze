@@ -808,6 +808,16 @@ button:disabled {
   }
 }
 
+.hero-detail-card {
+  margin: 0 auto;
+}
+
+.hero-detail-position {
+  text-align: center;
+  font-size: 0.8rem;
+  color: #a0a0a0;
+}
+
 #hero-modal-body {
   display: flex;
   flex-direction: column;

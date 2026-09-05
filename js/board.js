@@ -376,35 +376,9 @@ export function openHeroDetailModal(index) {
   const player = state.players[index];
   if (!player) return;
   const body = document.getElementById('hero-modal-body');
-  const abilities = (player.abilities || []).map(a => `
-    <div class="ability-entry"><strong>[${a.roll}] ${a.name}</strong>: ${abilityDescription(a)}</div>
-  `).join('');
-  const runes = getRunData(player);
-  const maxHp = effectiveMaxHp(player);
-
-  const statLine = (label, base, bonus) => {
-    const bonusText = bonus > 0 ? `<span class="stat-bonus">+${bonus}</span>` : '';
-    const valueHtml = `<span class="value">${base}${bonusText}</span>`;
-    return `<div class="hero-detail-row"><span class="label">${label}</span>${valueHtml}</div>`;
-  };
-
-  const runeEntries = Object.entries(RUNE_META)
-    .filter(([key]) => runes[key] > 0)
-    .map(([key, meta]) => `<div class="hero-detail-rune" style="color:${meta.color}">${meta.icon} ${meta.label} x${runes[key]}</div>`)
-    .join('');
-
   body.innerHTML = `
-    <div class="hero-detail-name" style="color:${PLAYER_COLORS[index]}">${player.name}</div>
-    <div class="hero-detail-grid">
-      <div class="hero-detail-row"><span class="label">HP</span><span class="value">${player.currentHp}/${maxHp}</span></div>
-      <div class="hero-detail-row"><span class="label">Gold</span><span class="value">${player.gold}</span></div>
-      ${statLine('Attack', player.attack, runes.strength)}
-      ${statLine('Defense', player.defense, runes.defense)}
-      ${statLine('Max HP', player.hp, runes.fortitude)}
-      <div class="hero-detail-row"><span class="label">Position</span><span class="value">(${player.position.row}, ${player.position.col})</span></div>
-    </div>
-    ${abilities ? `<div class="hero-detail-abilities"><div class="label">Abilities</div>${abilities}</div>` : ''}
-    <div class="hero-detail-abilities"><div class="label">Runes</div>${runeEntries || '<div class="hero-detail-rune">None</div>'}</div>
+    <div class="vs-card-side hero-detail-card">${heroCardHtml(player, index)}</div>
+    <div class="hero-detail-position">Position: (${player.position.row}, ${player.position.col})</div>
   `;
   document.getElementById('hero-modal').classList.remove('hidden');
 }
@@ -464,7 +438,7 @@ function heroCardHtml(player, index) {
     .map(([key, meta]) => `<span class="rune-chip" title="${meta.label}" style="color:${meta.color}">${meta.icon}${runes[key]}</span>`)
     .join('');
   const abilitiesLine = (player.abilities || [])
-    .map(a => `${a.name} — ${abilityDescription(a)}`)
+    .map(a => `${a.name} [${a.roll}]: ${abilityDescription(a)}`)
     .join('\n');
   const color = PLAYER_COLORS[index];
   const gradient = ART_FALLBACK[cls] || ART_FALLBACK.wizard;
