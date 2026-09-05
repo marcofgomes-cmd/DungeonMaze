@@ -521,40 +521,48 @@ export function renderEncounter() {
 export function showFloatingNumbers(result) {
   const heroSide = document.getElementById('hero-side');
   const encSide = document.getElementById('encounter-side');
+  let heroCount = 0;
+  let encCount = 0;
+
+  const spawn = (side, el, index) => {
+    el.classList.add('floating-number');
+    el.style.top = `${26 + index * 9}%`;
+    side.appendChild(el);
+  };
 
   if (result.heroHpDelta < 0) {
     const el = document.createElement('div');
-    el.className = 'floating-number damage';
+    el.className = 'damage';
     el.textContent = result.heroHpDelta;
-    heroSide.appendChild(el);
+    spawn(heroSide, el, heroCount++);
   } else if (result.heroHpDelta > 0) {
     const el = document.createElement('div');
-    el.className = 'floating-number heal';
+    el.className = 'heal';
     el.textContent = `+${result.heroHpDelta}`;
-    heroSide.appendChild(el);
+    spawn(heroSide, el, heroCount++);
   }
 
   if (result.monsterHpDelta < 0) {
     const el = document.createElement('div');
-    el.className = 'floating-number damage';
+    el.className = 'damage';
     el.textContent = result.monsterHpDelta;
-    encSide.appendChild(el);
+    spawn(encSide, el, encCount++);
   }
 
   if (result.goldDelta > 0) {
     const el = document.createElement('div');
-    el.className = 'floating-number gold';
+    el.className = 'gold';
     el.textContent = `+${result.goldDelta} gold`;
-    heroSide.appendChild(el);
+    spawn(heroSide, el, heroCount++);
   }
 
   if (result.runeStat) {
     const meta = RUNE_META[result.runeStat];
     if (meta) {
       const el = document.createElement('div');
-      el.className = 'floating-number rune';
+      el.className = 'rune';
       el.textContent = `${meta.icon} +1`;
-      heroSide.appendChild(el);
+      spawn(heroSide, el, heroCount++);
     }
   }
 }

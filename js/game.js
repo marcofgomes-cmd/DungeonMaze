@@ -253,8 +253,8 @@ function onRotateTile() {
 function onResolve() {
   const result = resolveEncounter();
   log(result.message, result.type);
-  showFloatingNumbers(result);
   render();
+  showFloatingNumbers(result);
 
   setTimeout(() => {
     state.combatResult = null;
