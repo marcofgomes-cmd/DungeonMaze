@@ -2,6 +2,14 @@
   "name": "dungeonmaze",
   "compatibility_date": "2026-09-05",
   "assets": {
-    "directory": "./"
+    "directory": "./",
+    "exclude": [
+      ".git/**",
+      ".gitignore",
+      "AGENTS.md",
+      "wrangler.jsonc",
+      "start.bat",
+      "start.ps1"
+    ]
   }
 }
