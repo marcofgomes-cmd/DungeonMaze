@@ -486,7 +486,16 @@ export function renderEncounter() {
     heroSide.innerHTML = heroCardHtml(player, index);
     encSide.innerHTML = encounterCardHtml(enc);
 
-    if (state.phase === 'encounter-choice') {
+    if (state.resolving) {
+      hideAll();
+      if (state.combatResult) {
+        vsDice.classList.remove('hidden');
+        vsDice.innerHTML = `
+          <div class="dice-white" title="Hero dice">⬥ ${state.combatResult.heroRoll}</div>
+          <div class="dice-black" title="Monster dice">⬥ ${state.combatResult.monsterRoll}</div>
+        `;
+      }
+    } else if (state.phase === 'encounter-choice') {
       fightBtn.classList.remove('hidden');
       runBtn.classList.remove('hidden');
       vsDice.classList.add('hidden');

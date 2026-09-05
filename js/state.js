@@ -13,6 +13,7 @@ export const state = {
   currentRotation: 0,
   currentEncounter: null,
   combatResult: null,
+  resolving: false,
   phase: 'move',
   moveTarget: null,
   runTargets: [],
@@ -33,6 +34,7 @@ export function resetState() {
   state.currentRotation = 0;
   state.currentEncounter = null;
   state.combatResult = null;
+  state.resolving = false;
   state.phase = 'move';
   state.moveTarget = null;
   state.runTargets = [];

@@ -103,6 +103,7 @@ async function startGame(encounters) {
 function nextTurn() {
   state.currentEncounter = null;
   state.combatResult = null;
+  state.resolving = false;
   state.currentTile = null;
   state.currentRotation = 0;
   state.moveTarget = null;
@@ -226,6 +227,7 @@ function processDrawEncounter() {
 
 // --- UI BUTTON HANDLERS ---
 function onRollDice() {
+  if (state.resolving || state.combatResult) return;
   const combat = rollCombatDice();
   log(`You rolled ${combat.heroRoll} | ${state.currentEncounter.name} rolled ${combat.monsterRoll}`, 'hero');
   render();
@@ -251,12 +253,15 @@ function onRotateTile() {
 }
 
 function onResolve() {
+  if (state.resolving) return;
   const result = resolveEncounter();
   log(result.message, result.type);
+  state.resolving = true;
   render();
   showFloatingNumbers(result);
 
   setTimeout(() => {
+    state.resolving = false;
     state.combatResult = null;
     if (result.resolved && result.questComplete) {
       completeQuest();
