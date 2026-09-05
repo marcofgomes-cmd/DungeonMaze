@@ -479,6 +479,7 @@ export function renderEncounter() {
 
   if (state.currentEncounter && (state.phase === 'resolve-encounter' || state.phase === 'encounter-choice')) {
     modal.classList.remove('hidden');
+    hideAll();
     const enc = state.currentEncounter;
     const player = state.players[state.currentPlayer];
     const index = state.currentPlayer;
@@ -487,7 +488,6 @@ export function renderEncounter() {
     encSide.innerHTML = encounterCardHtml(enc);
 
     if (state.resolving) {
-      hideAll();
       if (state.combatResult) {
         vsDice.classList.remove('hidden');
         vsDice.innerHTML = `
@@ -498,22 +498,16 @@ export function renderEncounter() {
     } else if (state.phase === 'encounter-choice') {
       fightBtn.classList.remove('hidden');
       runBtn.classList.remove('hidden');
-      vsDice.classList.add('hidden');
-      vsDice.innerHTML = '';
+    } else if (enc.type === 'monster' && !state.combatResult) {
+      rollBtn.classList.remove('hidden');
     } else {
-      if (enc.type === 'monster') {
-        if (!state.combatResult) {
-          rollBtn.classList.remove('hidden');
-        } else {
-          resolveBtn.classList.remove('hidden');
-          vsDice.classList.remove('hidden');
-          vsDice.innerHTML = `
-            <div class="dice-white" title="Hero dice">⬥ ${state.combatResult.heroRoll}</div>
-            <div class="dice-black" title="Monster dice">⬥ ${state.combatResult.monsterRoll}</div>
-          `;
-        }
-      } else {
-        resolveBtn.classList.remove('hidden');
+      resolveBtn.classList.remove('hidden');
+      if (state.combatResult) {
+        vsDice.classList.remove('hidden');
+        vsDice.innerHTML = `
+          <div class="dice-white" title="Hero dice">⬥ ${state.combatResult.heroRoll}</div>
+          <div class="dice-black" title="Monster dice">⬥ ${state.combatResult.monsterRoll}</div>
+        `;
       }
     }
   } else {
