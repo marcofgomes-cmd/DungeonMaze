@@ -413,27 +413,74 @@ export function closeHeroDetailModal() {
   document.getElementById('hero-modal').classList.add('hidden');
 }
 
+const TYPE_LABEL = { trap: 'Trap', heal: 'Heal', gold: 'Gold', equipment: 'Rune' };
+
+const CLASS_GLYPH = { warrior: '⚔', cleric: '✚', rogue: '🗡', wizard: '🔮' };
+
+const ART_FALLBACK = {
+  warrior: 'linear-gradient(135deg,#8a3026 0%,#431711 55%,#1c0e0a 100%)',
+  cleric: 'linear-gradient(135deg,#e8dcae 0%,#b5944a 45%,#3d3320 100%)',
+  rogue: 'linear-gradient(135deg,#5e3a7a 0%,#2b1b3d 55%,#120d1e 100%)',
+  wizard: 'linear-gradient(135deg,#17406b 0%,#0e2a4a 55%,#081426 100%)',
+  monster: 'linear-gradient(135deg,#6b1d2a 0%,#33101a 55%,#150a10 100%)',
+  trap: 'linear-gradient(135deg,#c67c2e 0%,#6b3d10 55%,#23150a 100%)',
+  heal: 'linear-gradient(135deg,#2f8f4e 0%,#16522b 55%,#0a2413 100%)',
+  gold: 'linear-gradient(135deg,#d4af37 0%,#6b4f0f 55%,#2a1c05 100%)',
+  equipment: 'linear-gradient(135deg,#7d4bbf 0%,#3c2260 55%,#170d26 100%)'
+};
+
+const TYPE_GLYPH = { monster: '💀', trap: '⚠️', heal: '✚', gold: '🪙', equipment: '◆' };
+
 function hpBarHtml(current, max) {
-  const pct = max > 0 ? Math.round(current / max * 100) : 0;
+  const pct = max > 0 ? Math.max(0, Math.round(current / max * 100)) : 0;
   const color = pct > 50 ? '#53d769' : pct > 25 ? '#ffd700' : '#e94560';
   return `<div class="card-bar"><div class="card-bar-fill" style="width:${pct}%;background:${color}"></div></div>`;
 }
 
+function statRowHtml(label, value, barHtml = '') {
+  return `
+    <div class="card-stat">
+      <div class="stat-head"><span class="stat-label">${label}</span><span class="stat-value">${value}</span></div>
+      ${barHtml}
+    </div>
+  `;
+}
+
+function artSlotHtml(artKey, gradient, glyph) {
+  return `
+    <div class="card-art" style="background:${gradient}">
+      <div class="art-glyph">${glyph}</div>
+      <img class="card-art-img" src="images/cards/${artKey}.webp" alt="" onerror="this.remove()">
+    </div>
+  `;
+}
+
 function heroCardHtml(player, index) {
   const maxHp = effectiveMaxHp(player);
+  const cls = player.class || 'hero';
   const runes = getRunData(player);
   const runeChips = Object.entries(RUNE_META)
     .filter(([key]) => runes[key] > 0)
     .map(([key, meta]) => `<span class="rune-chip" title="${meta.label}" style="color:${meta.color}">${meta.icon}${runes[key]}</span>`)
     .join('');
+  const abilitiesLine = (player.abilities || [])
+    .map(a => `${a.name} — ${abilityDescription(a)}`)
+    .join('\n');
+  const color = PLAYER_COLORS[index];
+  const gradient = ART_FALLBACK[cls] || ART_FALLBACK.wizard;
+  const glyph = CLASS_GLYPH[cls] || '◆';
   return `
-    <div class="card-name" style="color:${PLAYER_COLORS[index]}">${player.name}</div>
-    ${hpBarHtml(player.currentHp, maxHp)}
-    <div class="card-stats"><span>HP</span><span>${player.currentHp}/${maxHp}</span></div>
-    <div class="card-stats"><span>ATK</span><span>${effectiveAttack(player)}</span></div>
-    <div class="card-stats"><span>DEF</span><span>${effectiveDefense(player)}</span></div>
-    <div class="card-stats"><span>Gold</span><span>${player.gold}</span></div>
+    <div class="card-name" style="color:${color}">${player.name}</div>
+    <div class="card-type">${cls.charAt(0).toUpperCase() + cls.slice(1)}</div>
+    ${artSlotHtml(cls, gradient, glyph)}
+    <div class="card-stats">
+      ${statRowHtml('HP', `${player.currentHp}/${maxHp}`, hpBarHtml(player.currentHp, maxHp))}
+      ${statRowHtml('ATK', effectiveAttack(player))}
+      ${statRowHtml('DEF', effectiveDefense(player))}
+    </div>
     <div class="card-runes">${runeChips || ''}</div>
+    <div class="card-desc">${abilitiesLine || player.description || ''}</div>
+    <div class="card-gold">🪙 ${player.gold}</div>
   `;
 }
 
@@ -443,18 +490,30 @@ function encounterCardHtml(enc) {
     const isBoss = enc.id && enc.id.includes('boss');
     return `
       <div class="card-name">${enc.name}${isBoss ? ' <span class="card-badge">BOSS</span>' : ''}</div>
+      <div class="card-type">Monster</div>
+      ${artSlotHtml(enc.id, ART_FALLBACK.monster, TYPE_GLYPH.monster)}
+      <div class="card-stats">
+        ${statRowHtml('HP', `${hp}/${enc.hp}`, hpBarHtml(hp, enc.hp))}
+        ${statRowHtml('ATK', enc.attack)}
+        ${statRowHtml('DEF', enc.defense)}
+      </div>
       <div class="card-desc">${enc.description || ''}</div>
-      ${hpBarHtml(hp, enc.hp)}
-      <div class="card-stats"><span>HP</span><span>${hp}/${enc.hp}</span></div>
-      <div class="card-stats"><span>ATK</span><span>${enc.attack}</span></div>
-      <div class="card-stats"><span>DEF</span><span>${enc.defense}</span></div>
+      <div class="card-gold">🪙 ${enc.gold || 0}</div>
     `;
   }
-  const typeLabel = { trap: 'Trap', heal: 'Heal', gold: 'Gold', equipment: 'Rune' }[enc.type] || 'Encounter';
+  const typeLabel = TYPE_LABEL[enc.type] || 'Encounter';
+  const gradient = ART_FALLBACK[enc.type] || ART_FALLBACK.equipment;
+  const glyph = TYPE_GLYPH[enc.type] || '◆';
+  const goldLine = enc.type === 'gold' ? `<div class="card-gold">🪙 ${enc.value || 25}</div>` : '';
   return `
-    <div class="card-name">${enc.name} <span class="card-badge">${typeLabel}</span></div>
+    <div class="card-name">${enc.name}</div>
+    <div class="card-type"><span class="card-badge">${typeLabel}</span></div>
+    ${artSlotHtml(enc.id, gradient, glyph)}
+    <div class="card-stats">
+      ${statRowHtml('Effect', encounterEffectLine(enc))}
+    </div>
     <div class="card-desc">${enc.description || ''}</div>
-    <div class="card-stats"><span>Effect</span><span>${encounterEffectLine(enc)}</span></div>
+    ${goldLine}
   `;
 }
 
@@ -524,48 +583,34 @@ export function renderEncounter() {
 export function showFloatingNumbers(result) {
   const heroSide = document.getElementById('hero-side');
   const encSide = document.getElementById('encounter-side');
-  let heroCount = 0;
-  let encCount = 0;
 
-  const spawn = (side, el, index) => {
-    el.classList.add('floating-number');
-    el.style.top = `${26 + index * 9}%`;
+  const spawn = (side, className, text, left, top) => {
+    const el = document.createElement('div');
+    el.className = `floating-number ${className}`;
+    el.textContent = text;
+    el.style.left = `${left}%`;
+    el.style.top = `${top}%`;
     side.appendChild(el);
   };
 
   if (result.heroHpDelta < 0) {
-    const el = document.createElement('div');
-    el.className = 'damage';
-    el.textContent = result.heroHpDelta;
-    spawn(heroSide, el, heroCount++);
+    spawn(heroSide, 'damage', result.heroHpDelta, 22, 24);
   } else if (result.heroHpDelta > 0) {
-    const el = document.createElement('div');
-    el.className = 'heal';
-    el.textContent = `+${result.heroHpDelta}`;
-    spawn(heroSide, el, heroCount++);
+    spawn(heroSide, 'heal', `+${result.heroHpDelta}`, 22, 24);
   }
 
   if (result.monsterHpDelta < 0) {
-    const el = document.createElement('div');
-    el.className = 'damage';
-    el.textContent = result.monsterHpDelta;
-    spawn(encSide, el, encCount++);
+    spawn(encSide, 'damage', result.monsterHpDelta, 22, 24);
   }
 
   if (result.goldDelta > 0) {
-    const el = document.createElement('div');
-    el.className = 'gold';
-    el.textContent = `+${result.goldDelta} gold`;
-    spawn(heroSide, el, heroCount++);
+    spawn(heroSide, 'gold', `+${result.goldDelta}`, 79, 92);
   }
 
   if (result.runeStat) {
     const meta = RUNE_META[result.runeStat];
     if (meta) {
-      const el = document.createElement('div');
-      el.className = 'rune';
-      el.textContent = `${meta.icon} +1`;
-      spawn(heroSide, el, heroCount++);
+      spawn(heroSide, 'rune', `${meta.icon} +1`, 22, 51);
     }
   }
 }

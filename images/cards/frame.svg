@@ -1,0 +1,32 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="750" height="1050" viewBox="0 0 750 1050">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#1e2540"/>
+      <stop offset="0.5" stop-color="#16213e"/>
+      <stop offset="1" stop-color="#0f1020"/>
+    </linearGradient>
+    <linearGradient id="panel" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#0f3460"/>
+      <stop offset="1" stop-color="#0a2442"/>
+    </linearGradient>
+  </defs>
+
+  <rect width="750" height="1050" fill="url(#bg)"/>
+
+  <rect x="18" y="18" width="714" height="1014" rx="18" fill="none" stroke="#ffd700" stroke-width="4" opacity="0.85"/>
+  <rect x="28" y="28" width="694" height="994" rx="12" fill="none" stroke="#ffd700" stroke-width="1.5" opacity="0.4"/>
+
+  <rect x="38" y="31" width="674" height="74" rx="10" fill="#16213e" opacity="0.55"/>
+  <rect x="38" y="115" width="674" height="63" rx="8" fill="url(#panel)" opacity="0.6"/>
+
+  <rect x="45" y="199" width="255" height="356" rx="10" fill="#16213e" opacity="0.5"/>
+  <line x1="45" y1="285" x2="300" y2="285" stroke="#ffd700" stroke-width="1" opacity="0.18"/>
+  <line x1="45" y1="390" x2="300" y2="390" stroke="#ffd700" stroke-width="1" opacity="0.18"/>
+
+  <rect x="338" y="199" width="352" height="347" rx="10" fill="url(#panel)" stroke="#ffd700" stroke-width="1.5" opacity="0.8"/>
+
+  <rect x="60" y="609" width="630" height="315" rx="12" fill="url(#panel)" stroke="#ffd700" stroke-width="1" opacity="0.7"/>
+
+  <circle cx="592" cy="966" r="40" fill="#3a2a00" stroke="#ffd700" stroke-width="3"/>
+  <circle cx="592" cy="966" r="28" fill="none" stroke="#ffd700" stroke-width="1.5" opacity="0.55"/>
+</svg>

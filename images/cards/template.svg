@@ -1,0 +1,35 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="750" height="1050" viewBox="0 0 750 1050">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#1a1a2e"/>
+      <stop offset="1" stop-color="#0f1020"/>
+    </linearGradient>
+  </defs>
+  <rect width="750" height="1050" fill="url(#bg)"/>
+  <rect x="18" y="18" width="714" height="1014" rx="18" fill="none" stroke="#ffd700" stroke-opacity="0.35" stroke-width="3"/>
+
+  <g fill="none" stroke="#ffd700" stroke-width="2" stroke-dasharray="10 6">
+    <rect x="38" y="31" width="674" height="74"/>
+    <rect x="38" y="115" width="674" height="63"/>
+    <rect x="45" y="199" width="255" height="84"/>
+    <rect x="45" y="304" width="255" height="84"/>
+    <rect x="45" y="409" width="255" height="84"/>
+    <rect x="45" y="514" width="255" height="42"/>
+    <rect x="338" y="199" width="352" height="347"/>
+    <rect x="60" y="609" width="630" height="315"/>
+    <rect x="495" y="924" width="195" height="84"/>
+  </g>
+
+  <g fill="#ffd700" font-family="sans-serif" text-anchor="middle">
+    <text x="375" y="74" font-size="30">NAME (centered, top)</text>
+    <text x="375" y="152" font-size="21">TYPE - class / BOSS / Trap / Heal / Gold / Rune</text>
+    <text x="172" y="240" font-size="22">HP bar + value</text>
+    <text x="172" y="345" font-size="22">ATK value</text>
+    <text x="172" y="450" font-size="22">DEF value</text>
+    <text x="172" y="537" font-size="16">Runes (atk, def, hp)</text>
+    <text x="514" y="362" font-size="26">ART SLOT</text>
+    <text x="514" y="396" font-size="17">images/cards/&lt;id&gt;.webp</text>
+    <text x="375" y="756" font-size="22">DESCRIPTION / ABILITIES / EFFECT</text>
+    <text x="592" y="962" font-size="26">gold coin</text>
+  </g>
+</svg>
