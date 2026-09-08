@@ -444,9 +444,10 @@ function heroCardHtml(player, index) {
   const gradient = ART_FALLBACK[cls] || ART_FALLBACK.wizard;
   const glyph = CLASS_GLYPH[cls] || '◆';
   return `
+    ${artSlotHtml(cls, gradient, glyph)}
+    <div class="card-frame"></div>
     <div class="card-name" style="color:${color}">${player.name}</div>
     <div class="card-type">${cls.charAt(0).toUpperCase() + cls.slice(1)}</div>
-    ${artSlotHtml(cls, gradient, glyph)}
     <div class="card-stats">
       ${statRowHtml('HP', `${player.currentHp}/${maxHp}`, hpBarHtml(player.currentHp, maxHp))}
       ${statRowHtml('ATK', effectiveAttack(player))}
@@ -463,9 +464,10 @@ function encounterCardHtml(enc) {
     const hp = enc.currentHp || enc.hp;
     const isBoss = enc.id && enc.id.includes('boss');
     return `
+      ${artSlotHtml(enc.id, ART_FALLBACK.monster, TYPE_GLYPH.monster)}
+      <div class="card-frame"></div>
       <div class="card-name">${enc.name}${isBoss ? ' <span class="card-badge">BOSS</span>' : ''}</div>
       <div class="card-type">Monster</div>
-      ${artSlotHtml(enc.id, ART_FALLBACK.monster, TYPE_GLYPH.monster)}
       <div class="card-stats">
         ${statRowHtml('HP', `${hp}/${enc.hp}`, hpBarHtml(hp, enc.hp))}
         ${statRowHtml('ATK', enc.attack)}
@@ -480,9 +482,10 @@ function encounterCardHtml(enc) {
   const glyph = TYPE_GLYPH[enc.type] || '◆';
   const goldLine = enc.type === 'gold' ? `<div class="card-gold">🪙 ${enc.value || 25}</div>` : '';
   return `
+    ${artSlotHtml(enc.id, gradient, glyph)}
+    <div class="card-frame"></div>
     <div class="card-name">${enc.name}</div>
     <div class="card-type"><span class="card-badge">${typeLabel}</span></div>
-    ${artSlotHtml(enc.id, gradient, glyph)}
     <div class="card-stats">
       ${statRowHtml('Effect', encounterEffectLine(enc))}
     </div>
@@ -568,23 +571,23 @@ export function showFloatingNumbers(result) {
   };
 
   if (result.heroHpDelta < 0) {
-    spawn(heroSide, 'damage', result.heroHpDelta, 22, 24);
+    spawn(heroSide, 'damage', result.heroHpDelta, 20, 26);
   } else if (result.heroHpDelta > 0) {
-    spawn(heroSide, 'heal', `+${result.heroHpDelta}`, 22, 24);
+    spawn(heroSide, 'heal', `+${result.heroHpDelta}`, 20, 26);
   }
 
   if (result.monsterHpDelta < 0) {
-    spawn(encSide, 'damage', result.monsterHpDelta, 22, 24);
+    spawn(encSide, 'damage', result.monsterHpDelta, 20, 26);
   }
 
   if (result.goldDelta > 0) {
-    spawn(heroSide, 'gold', `+${result.goldDelta}`, 79, 92);
+    spawn(heroSide, 'gold', `+${result.goldDelta}`, 88, 80);
   }
 
   if (result.runeStat) {
     const meta = RUNE_META[result.runeStat];
     if (meta) {
-      spawn(heroSide, 'rune', `${meta.icon} +1`, 22, 51);
+      spawn(heroSide, 'rune', `${meta.icon} +1`, 20, 47);
     }
   }
 }
