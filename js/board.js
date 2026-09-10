@@ -7,6 +7,8 @@ import { posKey, parseKey, getDirDelta, getOppositeDir, rotateExits, getRotation
 import { PLAYER_COLORS } from './data.js';
 import { abilityDescription } from './encounters.js';
 
+const CARD_NAME_COLORS = ['#c0392b', '#1c8c3a', '#a67800', '#0078c8'];
+
 const RUNE_META = {
   strength: { icon: '⚔', label: 'Rune of Strength', color: '#e94560' },
   defense: { icon: '🛡', label: 'Rune of Defense', color: '#00a8ff' },
@@ -424,9 +426,9 @@ function statRowHtml(icon, value, barHtml = '') {
   `;
 }
 
-function artSlotHtml(artKey, gradient, glyph) {
+function artSlotHtml(artKey, gradient, glyph, extraClass = '') {
   return `
-    <div class="card-art" style="background:${gradient}">
+    <div class="card-art ${extraClass}" style="background:${gradient}">
       <div class="art-glyph">${glyph}</div>
       <img class="card-art-img" src="images/cards/${artKey}.webp" alt="" onerror="this.remove()">
     </div>
@@ -438,16 +440,16 @@ function heroCardHtml(player, index) {
   const cls = player.class || 'hero';
   const runes = getRunData(player);
   const abilitiesLine = (player.abilities || [])
-    .map(a => `${a.name} [${a.roll}]: ${abilityDescription(a)}`)
+    .map(a => `[${a.roll}] ${a.name}: ${abilityDescription(a)}`)
     .join('\n');
-  const color = PLAYER_COLORS[index];
+  const color = CARD_NAME_COLORS[index] || PLAYER_COLORS[index];
   const gradient = ART_FALLBACK[cls] || ART_FALLBACK.wizard;
   const glyph = CLASS_GLYPH[cls] || '◆';
   return `
     ${artSlotHtml(cls, gradient, glyph)}
     <div class="card-frame"></div>
     <div class="card-name hero-name" style="color:${color}">${player.name}</div>
-    <div class="card-type">${cls.charAt(0).toUpperCase() + cls.slice(1)}</div>
+    <div class="card-type">Hero</div>
     <div class="card-stats">
       ${statRowHtml('♥', `${player.currentHp}/${maxHp}`, hpBarHtml(player.currentHp, maxHp))}
       ${statRowHtml('⚔', statValueHtml(player.attack, runes.strength))}
@@ -481,13 +483,10 @@ function encounterCardHtml(enc) {
   const glyph = TYPE_GLYPH[enc.type] || '◆';
   const goldLine = enc.type === 'gold' ? `<div class="card-gold">🪙 ${enc.value || 25}</div>` : '';
   return `
-    ${artSlotHtml(enc.id, gradient, glyph)}
+    ${artSlotHtml(enc.id, gradient, glyph, 'wide')}
     <div class="card-frame"></div>
     <div class="card-name">${enc.name}</div>
     <div class="card-type"><span class="card-badge">${typeLabel}</span></div>
-    <div class="card-stats">
-      ${statRowHtml('Effect', encounterEffectLine(enc))}
-    </div>
     <div class="card-desc">${enc.description || ''}</div>
     ${goldLine}
   `;
