@@ -3,7 +3,7 @@
 // ============================================
 
 import { state } from './state.js';
-import { posKey, parseKey, getDirDelta, getOppositeDir, rotateExits, getRotationLabel, getRunData, effectiveMaxHp, effectiveAttack, effectiveDefense } from './utils.js';
+import { posKey, parseKey, getDirDelta, getOppositeDir, rotateExits, getRotationLabel, getRunData, effectiveMaxHp } from './utils.js';
 import { PLAYER_COLORS } from './data.js';
 import { abilityDescription } from './encounters.js';
 
@@ -411,10 +411,14 @@ function hpBarHtml(current, max) {
   return `<div class="card-bar"><div class="card-bar-fill" style="width:${pct}%;background:${color}"></div></div>`;
 }
 
-function statRowHtml(label, value, barHtml = '') {
+function statValueHtml(base, bonus) {
+  return bonus > 0 ? `${base}+${bonus}` : `${base}`;
+}
+
+function statRowHtml(icon, value, barHtml = '') {
   return `
     <div class="card-stat">
-      <div class="stat-head"><span class="stat-label">${label}</span><span class="stat-value">${value}</span></div>
+      <div class="stat-head"><span class="stat-label">${icon}</span><span class="stat-value">${value}</span></div>
       ${barHtml}
     </div>
   `;
@@ -433,10 +437,6 @@ function heroCardHtml(player, index) {
   const maxHp = effectiveMaxHp(player);
   const cls = player.class || 'hero';
   const runes = getRunData(player);
-  const runeChips = Object.entries(RUNE_META)
-    .filter(([key]) => runes[key] > 0)
-    .map(([key, meta]) => `<span class="rune-chip" title="${meta.label}" style="color:${meta.color}">${meta.icon}${runes[key]}</span>`)
-    .join('');
   const abilitiesLine = (player.abilities || [])
     .map(a => `${a.name} [${a.roll}]: ${abilityDescription(a)}`)
     .join('\n');
@@ -446,14 +446,13 @@ function heroCardHtml(player, index) {
   return `
     ${artSlotHtml(cls, gradient, glyph)}
     <div class="card-frame"></div>
-    <div class="card-name" style="color:${color}">${player.name}</div>
+    <div class="card-name hero-name" style="color:${color}">${player.name}</div>
     <div class="card-type">${cls.charAt(0).toUpperCase() + cls.slice(1)}</div>
     <div class="card-stats">
-      ${statRowHtml('HP', `${player.currentHp}/${maxHp}`, hpBarHtml(player.currentHp, maxHp))}
-      ${statRowHtml('ATK', effectiveAttack(player))}
-      ${statRowHtml('DEF', effectiveDefense(player))}
+      ${statRowHtml('♥', `${player.currentHp}/${maxHp}`, hpBarHtml(player.currentHp, maxHp))}
+      ${statRowHtml('⚔', statValueHtml(player.attack, runes.strength))}
+      ${statRowHtml('🛡', statValueHtml(player.defense, runes.defense))}
     </div>
-    <div class="card-runes">${runeChips || ''}</div>
     <div class="card-desc">${abilitiesLine || player.description || ''}</div>
     <div class="card-gold">🪙 ${player.gold}</div>
   `;
@@ -469,9 +468,9 @@ function encounterCardHtml(enc) {
       <div class="card-name">${enc.name}${isBoss ? ' <span class="card-badge">BOSS</span>' : ''}</div>
       <div class="card-type">Monster</div>
       <div class="card-stats">
-        ${statRowHtml('HP', `${hp}/${enc.hp}`, hpBarHtml(hp, enc.hp))}
-        ${statRowHtml('ATK', enc.attack)}
-        ${statRowHtml('DEF', enc.defense)}
+        ${statRowHtml('♥', `${hp}/${enc.hp}`, hpBarHtml(hp, enc.hp))}
+        ${statRowHtml('⚔', enc.attack)}
+        ${statRowHtml('🛡', enc.defense)}
       </div>
       <div class="card-desc">${enc.description || ''}</div>
       <div class="card-gold">🪙 ${enc.gold || 0}</div>
@@ -581,7 +580,7 @@ export function showFloatingNumbers(result) {
   }
 
   if (result.goldDelta > 0) {
-    spawn(heroSide, 'gold', `+${result.goldDelta}`, 88, 80);
+    spawn(heroSide, 'gold', `+${result.goldDelta}`, 86, 78);
   }
 
   if (result.runeStat) {

@@ -555,75 +555,31 @@ button:disabled {
   width: clamp(190px, 30vw, 236px);
   aspect-ratio: 63 / 88;
   border-radius: 12px;
-  background: #16213e;
+  background: #ffffff;
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.45);
   position: relative;
   overflow: visible;
   container-type: size;
 }
 
-.card-name {
-  position: absolute;
-  left: 5%;
-  right: 5%;
-  top: 3%;
-  height: 7%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 6.4cqw;
-  font-weight: bold;
-  text-align: center;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.9);
-  letter-spacing: 0.02em;
-}
-
-.card-type {
-  position: absolute;
-  left: 5%;
-  right: 5%;
-  top: 11%;
-  height: 6%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 3.6cqw;
-  color: #c9d1e8;
-  text-align: center;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.9);
-}
-
 .card-art {
   position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-  border-radius: 12px;
+  left: 55%;
+  top: 15%;
+  width: 38%;
+  height: 33%;
+  border-radius: 8px;
+  border: 2px solid rgba(0, 0, 0, 0.12);
+  box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.18), 0 1px 2px rgba(0, 0, 0, 0.08);
   overflow: hidden;
-  background: #0f3460;
+  background: #f0efe9;
   display: flex;
   align-items: center;
   justify-content: center;
-  z-index: 0;
-}
-
-.card-art::after {
-  content: '';
-  position: absolute;
-  inset: 0;
   z-index: 1;
-  background: radial-gradient(120% 95% at 50% 38%, rgba(8, 12, 30, 0.12) 0%, rgba(8, 12, 30, 0.45) 62%, rgba(4, 7, 18, 0.72) 100%);
-  pointer-events: none;
 }
 
 .card-art-img {
-  position: relative;
   width: 100%;
   height: 100%;
   object-fit: cover;
@@ -637,8 +593,9 @@ button:disabled {
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 24cqw;
-  opacity: 0.3;
+  font-size: 22cqw;
+  color: rgba(255, 255, 255, 0.75);
+  text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.35);
   pointer-events: none;
 }
 
@@ -662,12 +619,25 @@ button:disabled {
   justify-content: center;
   font-size: 5.2cqw;
   font-weight: bold;
+  color: #241a12;
   text-align: center;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.95);
+  text-shadow: 1px 1px 2px rgba(255, 255, 255, 0.6);
   letter-spacing: 0.02em;
+}
+
+.card-name.hero-name {
+  left: 50%;
+  right: auto;
+  transform: translateX(-50%);
+  width: max-content;
+  max-width: 68%;
+  background: rgba(22, 33, 62, 0.85);
+  border-radius: 999px;
+  padding: 0.3cqh 1.4cqw;
+  text-shadow: none;
 }
 
 .card-type {
@@ -681,30 +651,26 @@ button:disabled {
   align-items: center;
   justify-content: center;
   font-size: 3.8cqw;
-  color: #dfe6f5;
-  background: rgba(5, 10, 25, 0.35);
+  color: #4a4a4a;
+  background: rgba(0, 0, 0, 0.06);
   border-radius: 6px;
   text-align: center;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.9);
 }
 
 .card-stats {
   position: absolute;
   left: 5.5%;
-  top: 18%;
-  width: 30%;
-  height: 26%;
+  top: 17%;
+  width: 46%;
+  height: 33%;
   z-index: 4;
-  border-radius: 8px;
-  background: rgba(6, 9, 22, 0.5);
-  box-shadow: inset 0 0 8px rgba(0, 0, 0, 0.4);
   display: flex;
   flex-direction: column;
-  gap: 0.8cqh;
-  padding: 1.4cqh 0.8cqw;
+  gap: 0.5cqh;
+  padding: 0.6cqh 0;
 }
 
 .card-stat {
@@ -723,22 +689,21 @@ button:disabled {
 }
 
 .stat-label {
-  font-size: 3.4cqw;
+  font-size: 3.6cqw;
   font-weight: bold;
-  color: #ffd700;
+  color: #3b3b3b;
   letter-spacing: 0.05em;
 }
 
 .stat-value {
   font-size: 3.7cqw;
   font-weight: bold;
-  color: #eaeaea;
-  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.9);
+  color: #241a12;
 }
 
 .card-bar {
   height: 2cqh;
-  background: #1a1a2e;
+  background: #e8e4da;
   border-radius: 3px;
   overflow: hidden;
 }
@@ -749,66 +714,40 @@ button:disabled {
   transition: width 0.3s, background 0.3s;
 }
 
-.card-runes {
-  position: absolute;
-  left: 5.5%;
-  top: 45%;
-  width: 30%;
-  height: 6%;
-  z-index: 4;
-  border-radius: 6px;
-  background: rgba(6, 9, 22, 0.4);
-  padding: 0.3cqh 0.6cqw;
-  display: flex;
-  align-items: center;
-  gap: 0.6cqw;
-  flex-wrap: wrap;
-}
-
-.vs-card-side .rune-chip {
-  font-size: 3.2cqw;
-  padding: 0.2cqh 1cqw;
-  line-height: 1.3;
-}
-
 .card-desc {
   position: absolute;
-  left: 38%;
-  right: 1.5%;
-  top: 18%;
-  height: 62%;
+  left: 6%;
+  right: 6%;
+  top: 55%;
+  height: 27%;
   z-index: 4;
-  border-radius: 8px;
-  background: rgba(6, 9, 22, 0.45);
   display: flex;
   align-items: center;
   justify-content: center;
   font-size: 3.4cqw;
-  color: #e6eaf5;
+  color: #4a4a4a;
+  line-height: 1.3;
   text-align: center;
   white-space: pre-line;
   overflow: hidden;
-  padding: 0 1cqw;
-  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.95);
 }
 
 .card-gold {
   position: absolute;
   left: 78%;
   width: 20%;
-  top: 85%;
-  height: 11%;
+  top: 86%;
+  height: 10%;
   z-index: 4;
   border-radius: 999px;
-  background: rgba(255, 215, 0, 0.14);
-  border: 1px solid rgba(255, 215, 0, 0.6);
+  background: rgba(255, 215, 0, 0.18);
+  border: 2px solid #e3b93b;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 3.8cqw;
+  font-size: 3.6cqw;
   font-weight: bold;
-  color: #ffd700;
-  text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.95);
+  color: #9a7b1e;
 }
 
 .card-badge {
