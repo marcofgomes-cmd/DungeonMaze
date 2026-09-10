@@ -337,7 +337,7 @@ section h2 {
 
 #combat-area {
   display: flex;
-  flex-direction: row;
+  flex-direction: column;
   gap: 0.5rem;
   justify-content: center;
   align-items: center;
@@ -647,7 +647,7 @@ button:disabled {
   position: absolute;
   left: 14%;
   right: 18%;
-  top: 14%;
+  top: 12.5%;
   height: 5.5%;
   z-index: 4;
   display: flex;
@@ -663,9 +663,9 @@ button:disabled {
 
 .card-stats {
   position: absolute;
-  left: 9%;
+  left: 12%;
   top: 23%;
-  width: 27%;
+  width: 25%;
   height: 20%;
   z-index: 4;
   display: flex;
@@ -686,7 +686,6 @@ button:disabled {
 .stat-head {
   display: flex;
   align-items: center;
-  justify-content: space-between;
 }
 
 .stat-label {
@@ -694,12 +693,15 @@ button:disabled {
   font-weight: bold;
   color: #3b3b3b;
   letter-spacing: 0.05em;
+  min-width: 20px;
+  text-align: center;
 }
 
 .stat-value {
   font-size: 6cqw;
   font-weight: bold;
   color: #241a12;
+  padding-left: 5px;
 }
 
 .card-bar {
