@@ -394,7 +394,7 @@ export function renderHeroes() {
       .map(([key, meta]) => `<span class="rune-chip" title="${meta.label}" style="color:${meta.color}">${meta.icon}${runes[key]}</span>`)
       .join('');
     div.innerHTML = `
-      <div class="name" style="color:${PLAYER_COLORS[index]}">${player.name}</div>
+      <div class="name" style="color:${CARD_NAME_COLORS[index] || PLAYER_COLORS[index]}">${player.name}</div>
       <div class="hp-bar"><div class="hp-fill" style="width:${hpPct}%;background:${hpColor}"></div></div>
       <div class="stats"><span>HP</span><span>${player.currentHp}/${maxHp}</span></div>
       <div class="stats"><span>Gold</span><span>${player.gold}</span></div>
