@@ -898,6 +898,7 @@ button:disabled {
 
 #board {
   width: 100%;
+  min-width: 0;
 }
 
 #dungeon-grid {
@@ -907,8 +908,8 @@ button:disabled {
 }
 
 .tile {
-  width: 100px;
-  height: 100px;
+  width: var(--tile, 100px);
+  height: var(--tile, 100px);
   background: #0f3460;
   border-radius: 6px;
   position: relative;
@@ -981,36 +982,36 @@ button:disabled {
   top: 0;
   left: 50%;
   transform: translateX(-50%);
-  width: 20px;
-  height: 6px;
-  border-radius: 0 0 3px 3px;
+  width: calc(var(--tile, 100px) * 0.2);
+  height: calc(var(--tile, 100px) * 0.06);
+  border-radius: 0 0 calc(var(--tile, 100px) * 0.03) calc(var(--tile, 100px) * 0.03);
 }
 
 .exit.south {
   bottom: 0;
   left: 50%;
   transform: translateX(-50%);
-  width: 20px;
-  height: 6px;
-  border-radius: 3px 3px 0 0;
+  width: calc(var(--tile, 100px) * 0.2);
+  height: calc(var(--tile, 100px) * 0.06);
+  border-radius: calc(var(--tile, 100px) * 0.03) calc(var(--tile, 100px) * 0.03) 0 0;
 }
 
 .exit.west {
   left: 0;
   top: 50%;
   transform: translateY(-50%);
-  width: 6px;
-  height: 20px;
-  border-radius: 0 3px 3px 0;
+  width: calc(var(--tile, 100px) * 0.06);
+  height: calc(var(--tile, 100px) * 0.2);
+  border-radius: calc(var(--tile, 100px) * 0.03) 0 0 calc(var(--tile, 100px) * 0.03);
 }
 
 .exit.east {
   right: 0;
   top: 50%;
   transform: translateY(-50%);
-  width: 6px;
-  height: 20px;
-  border-radius: 3px 0 0 3px;
+  width: calc(var(--tile, 100px) * 0.06);
+  height: calc(var(--tile, 100px) * 0.2);
+  border-radius: 0 calc(var(--tile, 100px) * 0.03) calc(var(--tile, 100px) * 0.03) 0;
 }
 
 .players {
@@ -1023,8 +1024,8 @@ button:disabled {
 }
 
 .player-icon {
-  width: 20px;
-  height: 20px;
+  width: calc(var(--tile, 100px) * 0.2);
+  height: calc(var(--tile, 100px) * 0.2);
   border-radius: 50%;
   display: flex;
   align-items: center;
@@ -1068,7 +1069,7 @@ button:disabled {
 }
 
 .placement-marker {
-  font-size: 2rem;
+  font-size: calc(var(--tile, 100px) * 0.4);
   color: #53d769;
   font-weight: bold;
 }
@@ -1091,7 +1092,7 @@ button:disabled {
 }
 
 .movement-marker {
-  font-size: 2rem;
+  font-size: calc(var(--tile, 100px) * 0.4);
   color: #00a8ff;
   font-weight: bold;
 }
@@ -1114,18 +1115,18 @@ button:disabled {
 }
 
 .run-marker {
-  font-size: 2rem;
+  font-size: calc(var(--tile, 100px) * 0.4);
   color: #ff9f43;
   font-weight: bold;
 }
 
 .tile-encounter {
   position: absolute;
-  top: 4px;
-  left: 4px;
-  font-size: 0.8rem;
-  width: 18px;
-  height: 18px;
+  top: calc(var(--tile, 100px) * 0.04);
+  left: calc(var(--tile, 100px) * 0.04);
+  font-size: calc(var(--tile, 100px) * 0.13);
+  width: calc(var(--tile, 100px) * 0.18);
+  height: calc(var(--tile, 100px) * 0.18);
   display: flex;
   align-items: center;
   justify-content: center;

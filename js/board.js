@@ -9,6 +9,36 @@ import { abilityDescription } from './encounters.js';
 
 const CARD_NAME_COLORS = ['#c0392b', '#1c8c3a', '#a67800', '#0078c8'];
 
+const TILE_GAP = 4;
+const MAX_TILE = 100;
+const MIN_TILE = 48;
+
+function computeTileSize(cols) {
+  const board = document.getElementById('board');
+  if (!board || !(board.clientWidth > 0) || cols < 1) return MAX_TILE;
+  const avail = board.clientWidth - 8;
+  const gaps = (cols - 1) * TILE_GAP;
+  return Math.max(MIN_TILE, Math.min(MAX_TILE, Math.floor((avail - gaps) / cols)));
+}
+
+function refreshTileSize(grid) {
+  const cols = parseInt(grid.dataset.cols, 10);
+  if (!(cols > 0)) return;
+  const size = computeTileSize(cols);
+  grid.style.gridTemplateColumns = `repeat(${cols}, ${size}px)`;
+  grid.style.setProperty('--tile', `${size}px`);
+  grid.style.setProperty('--tile-step', `${size + TILE_GAP}px`);
+}
+
+let resizeTimer = null;
+window.addEventListener('resize', () => {
+  clearTimeout(resizeTimer);
+  resizeTimer = setTimeout(() => {
+    const grid = document.getElementById('dungeon-grid');
+    if (grid) refreshTileSize(grid);
+  }, 150);
+});
+
 const RUNE_META = {
   strength: { icon: '⚔', label: 'Rune of Strength', color: '#e94560' },
   defense: { icon: '🛡', label: 'Rune of Defense', color: '#00a8ff' },
@@ -162,8 +192,9 @@ export function renderBoard() {
 
   const rows = maxRow - minRow + 1;
   const cols = maxCol - minCol + 1;
-  grid.style.gridTemplateColumns = `repeat(${cols}, 100px)`;
-  grid.style.gridTemplateRows = `repeat(${rows}, 100px)`;
+  grid.dataset.cols = cols;
+  grid.style.gridTemplateRows = `repeat(${rows}, var(--tile))`;
+  refreshTileSize(grid);
 
   for (let r = minRow; r <= maxRow; r++) {
     for (let c = minCol; c <= maxCol; c++) {
@@ -243,10 +274,10 @@ export function renderMovementOptions() {
     const div = document.createElement('div');
     div.className = 'movement-option';
     div.style.position = 'absolute';
-    div.style.left = `${(t.col - minCol) * 104}px`;
-    div.style.top = `${(t.row - minRow) * 104}px`;
-    div.style.width = '100px';
-    div.style.height = '100px';
+    div.style.left = `calc(${t.col - minCol} * var(--tile-step))`;
+    div.style.top = `calc(${t.row - minRow} * var(--tile-step))`;
+    div.style.width = 'var(--tile)';
+    div.style.height = 'var(--tile)';
     div.innerHTML = '<div class="movement-marker">?</div>';
     div.addEventListener('click', (e) => {
       e.stopPropagation();
@@ -269,10 +300,10 @@ export function renderRunOptions() {
     const div = document.createElement('div');
     div.className = 'run-option';
     div.style.position = 'absolute';
-    div.style.left = `${(t.col - minCol) * 104}px`;
-    div.style.top = `${(t.row - minRow) * 104}px`;
-    div.style.width = '100px';
-    div.style.height = '100px';
+    div.style.left = `calc(${t.col - minCol} * var(--tile-step))`;
+    div.style.top = `calc(${t.row - minRow} * var(--tile-step))`;
+    div.style.width = 'var(--tile)';
+    div.style.height = 'var(--tile)';
     div.innerHTML = '<div class="run-marker">&#8618;</div>';
     div.addEventListener('click', (e) => {
       e.stopPropagation();
@@ -334,10 +365,10 @@ export function renderPlacementOptions() {
     const div = document.createElement('div');
     div.className = 'placement-option';
     div.style.position = 'absolute';
-    div.style.left = `${(col - minCol) * 104}px`;
-    div.style.top = `${(row - minRow) * 104}px`;
-    div.style.width = '100px';
-    div.style.height = '100px';
+    div.style.left = `calc(${col - minCol} * var(--tile-step))`;
+    div.style.top = `calc(${row - minRow} * var(--tile-step))`;
+    div.style.width = 'var(--tile)';
+    div.style.height = 'var(--tile)';
     div.innerHTML = '<div class="placement-marker">+</div>';
     div.addEventListener('click', (e) => {
       e.stopPropagation();
