@@ -982,8 +982,8 @@ button:disabled {
   top: 0;
   left: 50%;
   transform: translateX(-50%);
-  width: calc(var(--tile, 100px) * 0.2);
-  height: calc(var(--tile, 100px) * 0.06);
+  width: calc(var(--tile, 100px) * 0.13);
+  height: calc(var(--tile, 100px) * 0.03);
   border-radius: 0 0 calc(var(--tile, 100px) * 0.03) calc(var(--tile, 100px) * 0.03);
 }
 
@@ -991,8 +991,8 @@ button:disabled {
   bottom: 0;
   left: 50%;
   transform: translateX(-50%);
-  width: calc(var(--tile, 100px) * 0.2);
-  height: calc(var(--tile, 100px) * 0.06);
+  width: calc(var(--tile, 100px) * 0.13);
+  height: calc(var(--tile, 100px) * 0.03);
   border-radius: calc(var(--tile, 100px) * 0.03) calc(var(--tile, 100px) * 0.03) 0 0;
 }
 
@@ -1000,18 +1000,18 @@ button:disabled {
   left: 0;
   top: 50%;
   transform: translateY(-50%);
-  width: calc(var(--tile, 100px) * 0.06);
-  height: calc(var(--tile, 100px) * 0.2);
-  border-radius: calc(var(--tile, 100px) * 0.03) 0 0 calc(var(--tile, 100px) * 0.03);
+  width: calc(var(--tile, 100px) * 0.03);
+  height: calc(var(--tile, 100px) * 0.13);
+  border-radius: 0 calc(var(--tile, 100px) * 0.03) calc(var(--tile, 100px) * 0.03) 0;  
 }
 
 .exit.east {
   right: 0;
   top: 50%;
   transform: translateY(-50%);
-  width: calc(var(--tile, 100px) * 0.06);
-  height: calc(var(--tile, 100px) * 0.2);
-  border-radius: 0 calc(var(--tile, 100px) * 0.03) calc(var(--tile, 100px) * 0.03) 0;
+  width: calc(var(--tile, 100px) * 0.03);
+  height: calc(var(--tile, 100px) * 0.13);
+  border-radius: calc(var(--tile, 100px) * 0.03) 0 0 calc(var(--tile, 100px) * 0.03);
 }
 
 .players {
