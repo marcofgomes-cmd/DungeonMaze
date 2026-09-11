@@ -86,7 +86,7 @@ async function startGame(encounters) {
   const entrance = {
     name: 'Entrance', type: 'entrance',
     north: true, south: true, west: true, east: true,
-    image: 'images/room-cards/entrance.png',
+    image: 'images/room-cards/entrance.svg',
     explored: true, encounter: null
   };
   state.dungeon.set(posKey(0, 0), entrance);
