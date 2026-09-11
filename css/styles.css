@@ -5,19 +5,19 @@
 }
 
 :root {
-  --page-bg: #2c3351;
-  --panel: #394162;
-  --panel-2: #3f5583;
-  --panel-hover: #4e6a97;
-  --panel-border: #2a3352;
-  --empty-bg: #273043;
-  --dark-ink: #1d2233;
-  --text: #f2f4fa;
-  --text-muted: #b9c2d6;
-  --text-dim: #8b93ab;
-  --danger: #f04a63;
-  --danger-hover: #d33d56;
-  --disabled: #6d7591;
+  --page-bg: #eef0f4;
+  --panel: #ffffff;
+  --panel-2: #f5f7fa;
+  --panel-hover: #e4e8f0;
+  --panel-border: #d3d9e4;
+  --empty-bg: #dce2ea;
+  --dark-ink: #22273a;
+  --text: #262b3a;
+  --text-muted: #5f6880;
+  --text-dim: #98a0b3;
+  --danger: #e0435f;
+  --danger-hover: #c83852;
+  --disabled: #b8bfce;
 }
 
 body {
@@ -1053,13 +1053,13 @@ button:disabled {
 }
 
 .player-icon.active {
-  border-color: #ffffff;
-  box-shadow: 0 0 8px 3px rgba(255, 255, 255, 0.6);
+  border-color: #22273a;
+  box-shadow: 0 0 8px 3px rgba(34, 39, 58, 0.55);
   animation: pulse 1s infinite;
 }
 
 .tile.active-hero {
-  box-shadow: 0 0 0 3px #ffffff, 0 0 14px 5px rgba(255, 255, 255, 0.45);
+  box-shadow: 0 0 0 3px #00a8ff, 0 0 14px 5px rgba(0, 168, 255, 0.4);
 }
 
 .tile.can-move {
