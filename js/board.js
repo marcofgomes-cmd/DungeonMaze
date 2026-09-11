@@ -643,7 +643,7 @@ export function showEncounterInfo(e, encounter) {
   } else {
     const typeLabel = { trap: 'Trap', heal: 'Heal', gold: 'Gold', equipment: 'Equipment' }[encounter.type] || 'Encounter';
     html = `
-      <div class="name">${encounter.name} <span class="popup-badge" style="background:#0f3460">${typeLabel}</span></div>
+      <div class="name">${encounter.name} <span class="popup-badge" style="background:#3f5583">${typeLabel}</span></div>
       <div class="desc">${encounter.description || ''}</div>
       <div class="effect">${encounterEffectLine(encounter)}</div>
     `;
